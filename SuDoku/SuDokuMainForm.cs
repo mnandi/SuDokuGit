@@ -621,8 +621,5 @@ namespace SuDoku {
 		}
 		#endregion
 
-        private void numericLevel_ValueChanged(object sender, EventArgs e) {
-
-        }
-	}
+    }
 }

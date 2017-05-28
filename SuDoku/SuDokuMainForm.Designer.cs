@@ -27,6 +27,7 @@
             this.panelTiles = new System.Windows.Forms.Panel();
             this.pictureTable = new System.Windows.Forms.PictureBox();
             this.panelControl = new System.Windows.Forms.Panel();
+            this.label9 = new System.Windows.Forms.Label();
             this.comboLanguage = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
             this.textMaxLevel = new System.Windows.Forms.TextBox();
@@ -55,7 +56,6 @@
             this.buttonExit = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.comboGameType = new System.Windows.Forms.ComboBox();
-            this.label9 = new System.Windows.Forms.Label();
             this.panelTiles.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureTable)).BeginInit();
             this.panelControl.SuspendLayout();
@@ -111,6 +111,11 @@
             this.panelControl.Controls.Add(this.label1);
             this.panelControl.Controls.Add(this.comboGameType);
             this.panelControl.Name = "panelControl";
+            // 
+            // label9
+            // 
+            resources.ApplyResources(this.label9, "label9");
+            this.label9.Name = "label9";
             // 
             // comboLanguage
             // 
@@ -237,7 +242,6 @@
             0,
             0,
             0});
-            this.numericLevel.ValueChanged += new System.EventHandler(this.numericLevel_ValueChanged);
             // 
             // label2
             // 
@@ -305,11 +309,6 @@
             resources.ApplyResources(this.comboGameType, "comboGameType");
             this.comboGameType.Name = "comboGameType";
             this.comboGameType.SelectedIndexChanged += new System.EventHandler(this.comboGameType_SelectedIndexChanged);
-            // 
-            // label9
-            // 
-            resources.ApplyResources(this.label9, "label9");
-            this.label9.Name = "label9";
             // 
             // SuDokuForm
             // 
