@@ -33,7 +33,7 @@ namespace SuDoku {
 					butt.Size=new Size(buttSiz-offs,buttSiz-offs);
 					butt.Location=new Point(xx*buttSiz+offs,yy*buttSiz+offs);
 					int num=yy*nC+xx;
-					butt.Text=((char)(num+((SuDokuForm.tableSize>=10)?0x41:0x31))).ToString();
+					butt.Text=((char)(num+((SuDokuForm.gameTable.tabSize>=10)?0x41:0x31))).ToString();
 					butt.Tag=num+1;
 					if(!mode) {
 						if((item.vFlag&(1<<(num+1)))!=0)

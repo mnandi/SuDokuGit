@@ -8,21 +8,30 @@ using System.IO;		//	MemoryStream
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace SuDoku {
+	enum CellType {
+		FIXED,
+		TRYED,
+		FREE
+	}
 	[Serializable]
 	public class GameItem: ICloneable {
-		public int cx=0;			//	cell X coord
-		public int cy=0;			//	cell Y coord
-		public int occNum=0;		//	nbr of occupied values
+		public int cellX=0;			//	cell X coord
+		public int cellY=0;			//	cell Y coord
+		public int occNum=0;		//	nbr of occupied values (nbr of bits in vFlag)
 		public int actNum=0;		//	cell value: -1=empty, 0-not used, 1-n
 		public int actFlag=0;		//	own numeric bit mask (1 bit - according actNum)
 		public int vFlag=0;			//	bit mask of 0=available / 1=occupied numbers
-		public bool cFixed=false;	//	if fixed yet in this step
+		public int cellType=(int)CellType.FREE;	//	if fixed yet in this step
 		public GameItem(int x,int y) {
-			cx=x;
-			cy=y;
+			cellX=x;
+			cellY=y;
 		}
+		public Point coords { get { return new Point(cellX,cellY); } }
 		public object Clone() {
 			return this.MemberwiseClone();
+		}
+		public int GetIndex(int blockSize) {
+			return cellX+cellY*blockSize;
 		}
 	}
 	[Serializable]
@@ -49,11 +58,20 @@ namespace SuDoku {
 				}
 			}
 		}
+		public int CoordxToIndex(int ix,int iy) {
+			return iy*tabSize+ix;
+		}
+		public Point IndexToPoint(int index) {
+			return new Point(index%tabSize,index/tabSize);
+		}
 		public GameItem item(int x){
 			return listItems[x];
 		}
 		public GameItem item(int x,int y) {
 			return listItems[y*tabSize+x];
+		}
+		public GameItem item(Point pt) {
+			return listItems[pt.Y*tabSize+pt.X];
 		}
 		public void FillTableRow(int yy,string rowData) {
 			int bas=(tabSize>9)?0x40:0x30;
@@ -61,13 +79,14 @@ namespace SuDoku {
 				int num=(int)rowData[xx]-bas;
 				if(num<=0)
 					continue;
-				listItems[yy*tabSize+xx].actNum=num;
-				listItems[yy*tabSize+xx].actFlag=1<<num;
+				int ii=yy*tabSize+xx;
+				listItems[ii].actNum=num;
+				listItems[ii].actFlag=1<<num;
 			}
 		}
 		public void FillTable(List<string> lineData) {
-			for(int yy=1;yy<tabSize;yy++){
-				FillTableRow(yy,lineData[yy]);
+			for(int yy=0;yy<tabSize;yy++){
+				FillTableRow(yy,lineData[yy+1]);
 			}
 		}
 		public void ClearTable() {
@@ -77,22 +96,24 @@ namespace SuDoku {
 				item.occNum=
 				item.vFlag=
 				item.occNum=0;
-				item.cFixed=false;
+				item.cellType=(int)CellType.FREE;
 				item.actNum=-1;
 			}
 		}
-		public Point GetNearestToComplete() {
-			int xx=0;
-			int yy=0;
+		public Point? GetNearestToComplete() {
+			int xx=-1;
+			int yy=-1;
 			int max=0;
 			for(int ii=0; ii<listItems.Count; ii++) {
 				int act=listItems[ii].occNum;
-				if((act<=max)||(act==tabSize))
+				if((act<=max)||(act>=tabSize))
 					continue;
 				max=act;
-				xx=listItems[ii].cx;
-				yy=listItems[ii].cy;
+				xx=listItems[ii].cellX;
+				yy=listItems[ii].cellY;
 			}
+			if((xx<0)||(yy<0))
+				return null;
 			return new Point(xx,yy);
 		}
 		public int CheckTable() {
@@ -107,7 +128,7 @@ namespace SuDoku {
 		//public object Clone() {
 		//    return this.MemberwiseClone();
 		//}
-		public T DeepClone<T>(T obj) {
+		public T DeepClone<T>(T obj) where T : class {
 			T objResult;
 			using(MemoryStream ms=new MemoryStream()) {
 				BinaryFormatter bf=new BinaryFormatter();
