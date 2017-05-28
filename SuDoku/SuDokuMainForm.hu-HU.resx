@@ -117,35 +117,33 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="MB_caption_err" xml:space="preserve">
-    <value>Error</value>
+  <data name="comboLanguage.Items" xml:space="preserve">
+    <value>Magyar</value>
   </data>
-  <data name="MB_caption_exit" xml:space="preserve">
-    <value>Exit</value>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="buttonStartGame.Size" type="System.Drawing.Size, System.Drawing">
+    <value>136, 30</value>
   </data>
-  <data name="MB_caption_info" xml:space="preserve">
-    <value>Information</value>
-  </data>
-  <data name="MB_caption_result" xml:space="preserve">
-    <value>Result</value>
-  </data>
-  <data name="MB_msg_1result" xml:space="preserve">
-    <value>Egy megoldás van!</value>
-  </data>
-  <data name="MB_msg_MANYresult" xml:space="preserve">
-    <value>Több, legalább {0} megoldás is van!</value>
-  </data>
-  <data name="MB_msg_NOresult" xml:space="preserve">
-    <value>A tábla nem oldható meg</value>
-  </data>
-  <data name="MB_msg_result" xml:space="preserve">
-    <value>A tábla megoldása\r\nBefejezem</value>
-  </data>
-  <data name="MB_msg_stop" xml:space="preserve">
-    <value>A művelet leállítva</value>
-  </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="SuDoku" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SuDoku.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAIAICAQAAAAAADoAgAAJgAAABAQEAAAAAAAKAEAAA4DAAAoAAAAIAAAAEAAAAABAAQAAAAAAIAC
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAgAAAAICAAIAAAACAAIAAgIAAAMDAwACAgIAAAAD/AAD/
+        AAAA//8A/wAAAP8A/wD//wAA////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAA//////AAAAAAAAAAAAD//////////wAAAAAAAAAP///////////wAAAAAAAA
+        D////////////wAAAAAAAA/////////////wAAAAAAAP///wAAAP////8AAAAAAAD/8AAAAAAA////8A
+        AAAAAA8AAAAAAAAP////AAAAAAAAAAAAAAAAD////wAAAAAAAAAAAAAAAP////8AAAAAAAAAAAAA////
+        ////AAAAAAAAAAD//////////wAAAAAAAAD///////////AAAAAAAAAP//////////8AAAAAAAAA////
+        ///////wAAAAAAAAAP/////////wAAAAAAAAAA////////8AAAAAAAAAAAAP/////wAAAAAAAAAAAAAA
+        D////wAAAAAAAAAAAAAAAA////8AAAAAAADwAAAAAAAP////AAAAAAD/8AAAAAAAAP////8AAAD///AA
+        AAAAAAD////////////wAAAAAAAAD///////////8AAAAAAAAAD///////////AAAAAAAAAAD///////
+        //8AAAAAAAAAAAAA//////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////////
+        /////////8Af//wAA//4AAH/+AAA//gAAH/4H4B/+P/gP/v/4D///+A////AP//8AD//wAA//wAAf/4A
+        AP/8AAH//AAH//gAP//4A///+A////gP/3/4D/x//APwf/wAAH/+AAB//wAAf/+AAP//8Af/////////
+        //8oAAAAEAAAACAAAAABAAQAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAgAAAAICAAIAA
+        AACAAIAAgIAAAMDAwACAgIAAAAD/AAD/AAAA//8A/wAAAP8A/wD//wAA////AP8AAP//AAD/AAAAAA7g
+        AADgAAAA4AAAAO7gAADgAAAA4A4AAOAOAADu7/AA7u/wAO////AP///wwA/wDgAP8AzMwAAOAAAMzMzM
+        4A4AAMzEzMzg7gAAzEzEzO4OAADEzExE4A/wAMzEREQP///wREREREAP8AREREREREAEREREAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+</value>
   </data>
 </root>

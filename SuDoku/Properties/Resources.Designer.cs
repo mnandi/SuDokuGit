@@ -61,6 +61,87 @@ namespace SuDoku.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        internal static string MB_caption_err {
+            get {
+                return ResourceManager.GetString("MB_caption_err", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exit.
+        /// </summary>
+        internal static string MB_caption_exit {
+            get {
+                return ResourceManager.GetString("MB_caption_exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Information.
+        /// </summary>
+        internal static string MB_caption_info {
+            get {
+                return ResourceManager.GetString("MB_caption_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Result.
+        /// </summary>
+        internal static string MB_caption_result {
+            get {
+                return ResourceManager.GetString("MB_caption_result", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Egy megoldás van!.
+        /// </summary>
+        internal static string MB_msg_1result {
+            get {
+                return ResourceManager.GetString("MB_msg_1result", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Több, legalább {0} megoldás is van!.
+        /// </summary>
+        internal static string MB_msg_MANYresult {
+            get {
+                return ResourceManager.GetString("MB_msg_MANYresult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A tábla nem oldható meg.
+        /// </summary>
+        internal static string MB_msg_NOresult {
+            get {
+                return ResourceManager.GetString("MB_msg_NOresult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A tábla megoldása\r\nBefejezem.
+        /// </summary>
+        internal static string MB_msg_result {
+            get {
+                return ResourceManager.GetString("MB_msg_result", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A művelet leállítva.
+        /// </summary>
+        internal static string MB_msg_stop {
+            get {
+                return ResourceManager.GetString("MB_msg_stop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon SuDoku {

@@ -11,8 +11,13 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Timers;
-#endregion
+
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Globalization;		//	language
+using System.Reflection;
+using System.Resources;
+using System.Threading;
+#endregion
 
 namespace SuDoku {
 	delegate void ShowTimerDelegate();
@@ -26,10 +31,11 @@ namespace SuDoku {
 		static readonly Color text3Color=Color.RosyBrown;		//	Error cell number - imposs
 		static readonly Color back0Color=Color.White;			//	Default
 		static readonly Color back1Color=Color.PaleGoldenrod;	//	XCross
-		static public GameDef actGameDef=null;				//	Actual game definition
-		static public GameTable gameTable=null;					//	Actual game table
-		static public TableQueue tableQueue=null;			//	Previous game tables
-		static public TableQueue resultList=null;	
+		static public GameDef actGameDef=null;		//	Actual game definition
+		static public GameTable gameTable=null;		//	Actual game table
+		static public TableQueue tableQueue=null;	//	Previous game tables
+		static public TableQueue resultList=null;	//	List of possible results
+		static public List<int[]> buttonList;		// List of gamed cells		
 		static SolidBrush br=new SolidBrush(borderColor);	//	Draw rectangle border
 		static SolidBrush bo=new SolidBrush(text0Color);	//	Fix      Item text color
 		static SolidBrush bs=new SolidBrush(text1Color);	//	Selected Item text color
@@ -50,7 +56,13 @@ namespace SuDoku {
 		#endregion
 		#region Game initialization & gaming
 		public SuDokuForm() {
+
 			InitializeComponent();
+
+			LanguageChange chlang=new LanguageChange();
+			//chlang.ChangeLanguage("hu-HU");
+			chlang.ChangeLanguage("en");
+			chlang.ApplyLanguageToForm(this);
 
 			//	Init game comboBox
 			for(int ii=0; ii<Constants.gameDefTb.Length; ii++) {
@@ -70,6 +82,7 @@ namespace SuDoku {
 
 		private void buttonStartGame_Click(object sender,EventArgs e) {
 			if(!gameState) {		//	false=not gaming / true=gaming
+				//	not gaming
 				buttonStartGame.Text="Játék leállítása";
 				comboGameType.Enabled=
 				numericLevel.Enabled=
@@ -77,11 +90,17 @@ namespace SuDoku {
 				textGameComment.Enabled=false;
 				gameTable.ClearSelects();
 			} else {
+				//	gaming
+				buttonList=new List<int[]>();
 				buttonStartGame.Text="--> Játék indítása";
 				comboGameType.Enabled=
 				numericLevel.Enabled=
 				comboGameName.Enabled=
 				textGameComment.Enabled=true;
+				//	remove gamed cells
+				for(int ii=0; ii<buttonList.Count; ii--) {
+					gameTable.cell(buttonList[ii][0],buttonList[ii][1]).fixNum=0;
+				}
 			}
 			gameState=!gameState;
 		}
@@ -133,7 +152,7 @@ namespace SuDoku {
 					MessageBox.Show("A tábla nem oldható meg","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
 					break;
 				case sresult.SOLVE_ONERESULT:
-					MessageBox.Show("Egy megoldás is van!","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+					MessageBox.Show("Egy megoldás van!","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
 				case sresult.SOLVE_MORERESULT:
 					MessageBox.Show(string.Format("Több, legalább {0} megoldás is van!",(int)sret),"Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
@@ -149,7 +168,6 @@ namespace SuDoku {
 			//    case sresult.SOLVE_OK:
 			//        var ret=MessageBox.Show("A tábla megoldható\r\nMutassam a végeredményt?","Megoldhatóság",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
 			//        if(ret==DialogResult.Yes) {
-			//            pictureTable_Resize(null,null);
 			//            MessageBox.Show("Tovább","Kilépés",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
 			//        MessageBox.Show("A tábla nem oldható meg!","Megoldhatóság",MessageBoxButtons.OK,MessageBoxIcon.Error);
 			//    case sresult.SOLVE_IMPOSSIBLE:	//		"Lehetetlen megoldás"
@@ -267,9 +285,25 @@ namespace SuDoku {
 				num=ShowNumpad(ptCell,item,false);
 				pictureTable.Focus();
 			}
+			int origState=0;
 			if(num>=0) {
+				if(!gameState) {		//	false=not gaming / true=gaming
+					//	here gaming
+					origState=1;
+				} else {
+					//	here not gaming
+					origState=0;
+					int indx=buttonList.FindIndex(ni => (ni[0]==xx)&&(ni[1]==yy));
+					//	Remove old cell from list
+					if(indx>=0) {
+						buttonList.RemoveAt(indx);
+					}
+					if(num>0) {
+						buttonList.Add(new int[] { xx,yy });
+					}
+				}
 				item.fixNum=num;
-				item.orig=(num==0)?0:1;
+				item.orig=origState;
 				using(Graphics g=Graphics.FromImage(pictureTable.Image)) {
 					DrawCell(g,br,cellSize,gameTable.cell(xx,yy));
 				}
@@ -331,8 +365,12 @@ namespace SuDoku {
 		#endregion
 		#region Game handling buttons
 		private void buttonClearGame_Click(object sender,EventArgs e) {
-			gameTable.ClearTable();
-			pictureTable_Resize(null,null);
+			if(!gameState) {		//	false=not gaming / true=gaming
+				gameTable.ClearTable();
+				pictureTable_Resize(null,null);
+			} else {
+				//	Remove only lasts
+			}
 		}
 
 		private void comboGameName_SelectedIndexChanged(object sender,EventArgs e) {
@@ -439,6 +477,24 @@ namespace SuDoku {
 					break;
 			}
 
+		}
+
+		private void comboLanguage_SelectedIndexChanged(object sender,EventArgs e) {
+			int selx=comboLanguage.SelectedIndex;
+			string langid="";
+			switch(selx) {
+				case 0:
+					langid="hu-HU";
+					break;
+				case 1:
+					langid="en";
+					break;
+			}
+			if(!string.IsNullOrEmpty(langid)) {
+				LanguageChange chlang=new LanguageChange();
+				chlang.ChangeLanguage(langid);
+				chlang.ApplyLanguageToForm(this);
+			}
 		}
 	}
 }

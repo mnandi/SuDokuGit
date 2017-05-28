@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="GameFile.cs" />
+    <Compile Include="LanguageChange.cs" />
     <Compile Include="SuSolve.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -84,6 +85,15 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="SuDokuMainForm.en.resx">
+      <DependentUpon>SuDokuMainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SuDokuMainForm.hu-HU.resx">
+      <DependentUpon>SuDokuMainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SuDokuMainForm.hu.resx">
+      <DependentUpon>SuDokuMainForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SuDokuMainForm.resx">
       <DependentUpon>SuDokuMainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
