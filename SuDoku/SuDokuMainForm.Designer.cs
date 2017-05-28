@@ -43,6 +43,7 @@
 			this.buttonExit = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.comboGameType = new System.Windows.Forms.ComboBox();
+			this.buttonCheckResolving = new System.Windows.Forms.Button();
 			this.panelTiles.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureTable)).BeginInit();
 			this.panelControl.SuspendLayout();
@@ -78,6 +79,7 @@
 			// 
 			this.panelControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.panelControl.Controls.Add(this.buttonCheckResolving);
 			this.panelControl.Controls.Add(this.buttonSaveGame);
 			this.panelControl.Controls.Add(this.comboGameName);
 			this.panelControl.Controls.Add(this.textTimer);
@@ -278,6 +280,16 @@
 			this.comboGameType.TabIndex = 0;
 			this.comboGameType.SelectedIndexChanged += new System.EventHandler(this.comboGameType_SelectedIndexChanged);
 			// 
+			// buttonCheckResolving
+			// 
+			this.buttonCheckResolving.Location = new System.Drawing.Point(152, 166);
+			this.buttonCheckResolving.Name = "buttonCheckResolving";
+			this.buttonCheckResolving.Size = new System.Drawing.Size(137, 30);
+			this.buttonCheckResolving.TabIndex = 19;
+			this.buttonCheckResolving.Text = "Megoldhatóság";
+			this.buttonCheckResolving.UseVisualStyleBackColor = true;
+			this.buttonCheckResolving.Click += new System.EventHandler(this.buttonCheckResolving_Click);
+			// 
 			// SuDokuForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -319,6 +331,7 @@
 		private System.Windows.Forms.TextBox textTimer;
 		private System.Windows.Forms.ComboBox comboGameName;
 		private System.Windows.Forms.Button buttonSaveGame;
+		private System.Windows.Forms.Button buttonCheckResolving;
 	}
 }
 

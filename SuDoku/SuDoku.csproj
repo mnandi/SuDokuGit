@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="GameList.cs" />
+    <Compile Include="GameQueueItem.cs" />
     <Compile Include="GameTable.cs" />
     <Compile Include="NumPad.cs">
       <SubType>Form</SubType>

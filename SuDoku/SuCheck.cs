@@ -27,7 +27,7 @@ namespace SuDoku {
 				if(num<=0)
 					continue;
 				bits=(1<<num);
-				if((item.actFlag&bits)!=0) {
+				if((flag&bits)!=0) {
 					errNb+=AddDouble(xx,item.cy,doubles);
 				}else{
 					flag|=bits;
@@ -41,7 +41,7 @@ namespace SuDoku {
 				if(num<=0)
 					continue;
 				bits=(1<<num);
-				if((item.actFlag&bits)!=0) {
+				if((flag&bits)!=0) {
 					errNb+=AddDouble(item.cx,yy,doubles);
 				} else {
 					flag|=bits;
@@ -61,7 +61,7 @@ namespace SuDoku {
 						if(num<=0)
 							continue;
 						bits=(1<<num);
-						if((item.actFlag&bits)!=0) {
+						if((flag&bits)!=0) {
 							errNb+=AddDouble(ii,ii,doubles);
 						} else {
 							flag|=bits;
@@ -71,13 +71,13 @@ namespace SuDoku {
 				if(item.cx==(SuDokuForm.tableSize-1-item.cy)) {
 					//	if item in bottom-left - top-right diagonal
 					for(int ii=0; ii<SuDokuForm.tableSize; ii++) {
-						if(item.cy==ii)
+						if(item.cx==ii)
 							continue;	//	exclude own cell
 						num=SuDokuForm.gameTable.item(ii,SuDokuForm.tableSize-1-ii).actNum;
 						if(num<=0)
 							continue;
 						bits=(1<<num);
-						if((item.actFlag&bits)!=0) {
+						if((flag&bits)!=0) {
 							errNb+=AddDouble(item.cx,ii,doubles);
 						} else {
 							flag|=bits;
@@ -99,7 +99,7 @@ namespace SuDoku {
 					if(num<=0)
 						continue;
 					bits=(1<<num);
-					if((item.actFlag&bits)!=0) {
+					if((flag&bits)!=0) {
 						errNb+=AddDouble(x,y,doubles);
 					} else {
 						flag|=bits;

@@ -27,10 +27,11 @@ namespace SuDoku {
 		static public GameDef actGameDef=null;				//	Actual game definition
 		static public int tableSize;						//	tablesize of actual game
 		static public GameTable gameTable;				//	Actual game table
-		static public List<GameItem[,]> gameQueue;			//	Previous game tables
+		static public List<GameQueueItem> gameQueue;			//	Previous game tables
 		static SolidBrush br=new SolidBrush(borderColor);	//	Draw rectangle border
 		static SolidBrush bn=new SolidBrush(textColor);		//	Item text color
 		static SolidBrush bf=new SolidBrush(back0Color);	//	Clear picture
+		static SolidBrush bd=new SolidBrush(back1Color);	//	Clear picture diadonal
 		//	Game states
 		static bool gameState=false;			//	false=not gaming / true=gaming
 		static System.Timers.Timer gameTimer;	//	Game play time counter
@@ -55,6 +56,9 @@ namespace SuDoku {
 			gameTimer.AutoReset=true;
 			gameTimer.Enabled=true;
 		}
+		private void buttonExit_Click(object sender,EventArgs e) {
+			this.Close();
+		}
 
 		private void buttonStartGame_Click(object sender,EventArgs e) {
 			if(!gameState) {
@@ -73,7 +77,7 @@ namespace SuDoku {
 			gameState=!gameState;
 		}
 		#endregion
-		#region Timer
+		#region Game Timer
 		void OnTimedEvent(object source,ElapsedEventArgs e) {
 			if(gameState) {
 				gameCounter++;
@@ -96,7 +100,33 @@ namespace SuDoku {
 			}
 		}
 		#endregion
-		#region Game table handling
+		#region Game testing buttons
+		private void buttonCheckResolving_Click(object sender,EventArgs e) {
+			MessageBox.Show("CSAK TESZT!!!\r\nA tábla nem oldható meg!","Megoldhatóság",MessageBoxButtons.OK,MessageBoxIcon.Error);
+			//MessageBox.Show("A tábla megoldható","Megoldhatóság",MessageBoxButtons.OK,MessageBoxIcon.Information);
+		}
+		private void buttonTestGame_Click(object sender,EventArgs e) {
+			int conflictNb=0;
+			int conflictAll=0;
+			for(int yy=0; yy<tableSize; yy++) {
+				for(int xx=0; xx<tableSize; xx++) {
+					GameItem item=gameTable.item(xx,yy);
+					if(item.actNum<1)
+						continue;
+					List<int[]> errors=SuCheck.CheckValues(item);
+					int errCount=errors.Count;
+					if(errCount==0)
+						continue;
+					conflictNb++;
+					conflictAll+=errCount;
+					for(int ii=0; ii<errCount; ii++) {
+						//?	Show conflicts
+					}
+				}
+			}
+		}
+		#endregion
+		#region Game table drawing
 		private void comboGameType_SelectedIndexChanged(object sender,EventArgs e) {
 			actGameDef=Constants.gameDefTb[comboGameType.SelectedIndex];
 			InitSuDokuTable(actGameDef);
@@ -133,9 +163,10 @@ namespace SuDoku {
 		int SetTop(int yp,int siz) {
 			return baseY+yp*(siz+Constants.cellOffs)+(yp/actGameDef.yCells)*Constants.groupOffs;
 		}
-		void DrawCell(Graphics g,Brush br,int size,GameItem item) {
+		void DrawCell(Graphics g,Brush brx,int size,GameItem item) {
 			Rectangle rect=new Rectangle(SetLeft(item.cx,size),SetTop(item.cy,size),size,size);
-			g.FillRectangle(bf,rect);
+			Brush bb=((actGameDef.xCross==(int)GameType.DIAGGAME)&&((item.cx==item.cy)||(item.cx==(actGameDef.xCells*actGameDef.yCells)-1-item.cy)))?bd:bf;
+			g.FillRectangle(bb,rect);
 			g.DrawRectangle(new Pen(br),rect);
 			if(item.actNum>0) {
 				string chstr=((char)(((tableSize>9)?0x40:0x30)+item.actNum)).ToString();
@@ -235,35 +266,10 @@ namespace SuDoku {
 			}
 		}
 		#endregion
-
-		private void buttonTestGame_Click(object sender,EventArgs e) {
-			int conflictNb=0;
-			int conflictAll=0;
-			for(int yy=0; yy<tableSize; yy++) {
-				for(int xx=0; xx<tableSize; xx++) {
-					GameItem item=gameTable.item(xx,yy);
-					if(item.actNum<1)
-						continue;
-					List<int[]> errors=SuCheck.CheckValues(item);
-					int errCount=errors.Count;
-					if(errCount==0)
-						continue;
-					conflictNb++;
-					conflictAll+=errCount;
-					for(int ii=0; ii<errCount; ii++) {
-						//?	Show conflicts
-					}
-				}
-			}
-		}
-
+		#region Game handling buttons
 		private void buttonClearGame_Click(object sender,EventArgs e) {
 			gameTable.ClearTable();
 			pictureTable_Resize(null,null);
-		}
-
-		private void buttonFillGame_Click(object sender,EventArgs e) {
-
 		}
 
 		private void comboGameName_SelectedIndexChanged(object sender,EventArgs e) {
@@ -284,9 +290,9 @@ namespace SuDoku {
 			pictureTable_Resize(null,null);
 			int errnum=gameTable.CheckTable();
 		}
-
-		private void buttonExit_Click(object sender,EventArgs e) {
-			this.Close();
+		private void buttonFillGame_Click(object sender,EventArgs e) {
+			MessageBox.Show("Ez még nincs kész!!","Kitöltés",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
 		}
+		#endregion
 	}
 }
