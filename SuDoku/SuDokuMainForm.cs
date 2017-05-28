@@ -64,18 +64,17 @@ namespace SuDoku {
 		public SuDokuForm() {
 
 			InitializeComponent();
-
+#if DEBUG
 			Assembly assembly=Assembly.GetExecutingAssembly();
 			foreach(string s in assembly.GetManifestResourceNames()) {
 				string xx=s;
 			}
-
+#endif
 			chlang=new LanguageChange();
 			//chlang.ChangeLanguage("hu-HU");
-			chlang.ChangeLanguage("en");
+			//chlang.ChangeLanguage("en");
+			chlang.ChangeLanguage(null);		//	set default language
 			chlang.ApplyLanguageToForm(this);
-
-			string lstr=chlang.GetLocalString("MB_caption_err");
 
 			//	Init game comboBox
 			for(int ii=0; ii<Constants.gameDefTb.Length; ii++) {
@@ -98,7 +97,9 @@ namespace SuDoku {
 				//	not playing - check game
 				int nerr=gameTable.CheckTable(true);
 				if(nerr>0) {
-					MessageBox.Show("A tábla hibás, nem megoldható\r\nJavítsa ki!","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
+					string msgid=chlang.GetLocalizedString("MB_msg_errtable");
+					string msgtype=chlang.GetLocalizedString("MB_caption_err");
+					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Error);
 				}
 				//	not playing - start game
 				buttonStartGame.Text="Játék leállítása";
@@ -168,45 +169,45 @@ namespace SuDoku {
 			string msgtype;
 			switch(sret) {
 				case sresult.SOLVE_FEWDATA:
-					msgid=chlang.GetLocalString("MB_msg_errfill");
-					msgtype=chlang.GetLocalString("MB_caption_err");
+					msgid=chlang.GetLocalizedString("MB_msg_errfill");
+					msgtype=chlang.GetLocalizedString("MB_caption_err");
 					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Error);
 					break;
 				case sresult.SOLVE_IMPOSSIBLE:	//		"Lehetetlen megoldás"
-					msgid=chlang.GetLocalString("MB_msg_NOresult");
-					msgtype=chlang.GetLocalString("MB_caption_err");
+					msgid=chlang.GetLocalizedString("MB_msg_NOresult");
+					msgtype=chlang.GetLocalizedString("MB_caption_err");
 					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Error);
 					break;
 				case sresult.SOLVE_CANCELLED:
-					msgid=chlang.GetLocalString("MB_msg_stopped");
-					msgtype=chlang.GetLocalString("MB_caption_err");
+					msgid=chlang.GetLocalizedString("MB_msg_stopped");
+					msgtype=chlang.GetLocalizedString("MB_caption_err");
 					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Error);
 					break;
 				case sresult.SOLVE_OK:			//	-1	"Jó megoldás !"
 					//	Returns:
 					pictureTable_Resize(null,null);
-					msgid=chlang.GetLocalString("MB_msg_result");
-					msgtype=chlang.GetLocalString("MB_caption_result");
+					msgid=chlang.GetLocalizedString("MB_msg_result");
+					msgtype=chlang.GetLocalizedString("MB_caption_result");
 					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
 				case sresult.SOLVE_NORESULT:	//	 0	"Hiba, nincs megoldás"
-					msgid=chlang.GetLocalString("MB_msg_NOresult");
-					msgtype=chlang.GetLocalString("MB_caption_err");
+					msgid=chlang.GetLocalizedString("MB_msg_NOresult");
+					msgtype=chlang.GetLocalizedString("MB_caption_err");
 					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Error);
 					break;
 				case sresult.SOLVE_ONERESULT:	//	1	"1 megoldás"
-					msgid=chlang.GetLocalString("MB_msg_1result");
-					msgtype=chlang.GetLocalString("MB_caption_result");
+					msgid=chlang.GetLocalizedString("MB_msg_1result");
+					msgtype=chlang.GetLocalizedString("MB_caption_result");
 					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
 				case sresult.SOLVE_MORERESULT:	//	>1	"Több megoldás"
-					msgid=chlang.GetLocalString(string.Format("MB_msg_MANYresult",(int)sret));
-					msgtype=chlang.GetLocalString("MB_caption_result");
+					msgid=chlang.GetLocalizedString(string.Format("MB_msg_MANYresult",(int)sret));
+					msgtype=chlang.GetLocalizedString("MB_caption_result");
 					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
 				default:						//	>2	"Több megoldás"
-					msgid=chlang.GetLocalString(string.Format("MB_msg_MANYresult",(int)sret));
-					msgtype=chlang.GetLocalString("MB_caption_result");
+					msgid=chlang.GetLocalizedString(string.Format("MB_msg_MANYresult",(int)sret));
+					msgtype=chlang.GetLocalizedString("MB_caption_result");
 					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
 			}
@@ -380,10 +381,16 @@ namespace SuDoku {
 				}
 				pictureTable.Refresh();
 				if((gameState==1)&&(gameTable.EndTest()<0)){
+					string msgid;
+					string msgtype;
 					if(nerr>0) {
-						MessageBox.Show("Hibás kitöltés!\r\nA tábla nincs jól megoldva!","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Error);
+						msgid=chlang.GetLocalizedString("MB_msg_ERRresult");
+						msgtype=chlang.GetLocalizedString("MB_caption_err");
+						MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Error);
 					} else {
-						MessageBox.Show("Gratulálok!\r\nA tábla megoldva!","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+						msgid=chlang.GetLocalizedString("MB_msg_OKresult");
+						msgtype=chlang.GetLocalizedString("MB_caption_result");
+						MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					}
 				}
 			}
@@ -415,8 +422,9 @@ namespace SuDoku {
 				//	here not playing - start game saving
 				string gameName=textGameName.Text;
 				if(string.IsNullOrWhiteSpace(gameName)) {
-					//!MessageBox.Show("A játék nevet ki kell tölteni!","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
-					MessageBox.Show("A játék nevet ki kell tölteni!",Properties.Resources.MB_caption_err,MessageBoxButtons.OK,MessageBoxIcon.Error);
+					string msgid=chlang.GetLocalizedString("MB_msg_MISSname");
+					string msgtype=chlang.GetLocalizedString("MB_caption_err");
+					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Error);
 					return;
 				}
 				int gameIndex=GameFile.GetGameIndex(gameName);
@@ -523,7 +531,9 @@ namespace SuDoku {
 				return;
 			if(gameState==0) {		//	0=not playing / 1=playing / -1-play stopped
 				//	here not playing
-				MessageBox.Show("Ez még nincs kész!!","Kitöltés",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+				string msgid="Ez még nincs kész!!";	//	chlang.GetLocalizedString("MB_msg_ERRresult");
+				string msgtype=chlang.GetLocalizedString("MB_caption_info");
+				MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
 			} else {
 				//	here playing
 			}
@@ -579,7 +589,8 @@ namespace SuDoku {
 			string langid="";
 			switch(selx) {
 				case 0:
-					langid="hu-HU";
+					//langid="hu-HU";
+					langid=null;
 					break;
 				case 1:
 					langid="en";

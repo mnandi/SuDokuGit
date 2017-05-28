@@ -77,7 +77,6 @@ namespace SuDoku {
 					GameFile.EndItem();
 				} catch(Exception ex) {
 					string msg="Error: Could not read file from disk. Original error: "+ex.Message;
-					//MessageBox.Show(msg);
 				}
 			}
 			return gameNames;
@@ -95,7 +94,6 @@ namespace SuDoku {
 				}
 			} catch(Exception ex) {
 				string msg="Error: Could not read file from disk. Original error: "+ex.Message;
-				//MessageBox.Show(msg);
 			}
 		}
 		public static int GetGameIndexFull(string gameid) {

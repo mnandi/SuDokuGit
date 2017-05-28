@@ -19,13 +19,16 @@ namespace SuDoku {
 			try {
 				mCI=new CultureInfo(language);
 			} catch {
+				mCI=null;
 			}
-			Thread.CurrentThread.CurrentCulture=mCI;
-			Thread.CurrentThread.CurrentUICulture=mCI;
+			if(mCI!=null) {
+				Thread.CurrentThread.CurrentCulture=mCI;
+				Thread.CurrentThread.CurrentUICulture=mCI;
+			}
 			rm=new System.Resources.ResourceManager("SuDoku.Resource",Assembly.GetExecutingAssembly());
 		}
 
-		public string GetLocalString(string key) {
+		public string GetLocalizedString(string key) {
 			return rm.GetString(key,mCI);
 
 		}
