@@ -67,7 +67,6 @@ namespace SuDoku {
 			#endregion
 			}
 			cell.vFlag=flag;
-			//cell.occNum=CountOccnum(flag);
 			return doubles;
 		}
 
@@ -164,7 +163,6 @@ namespace SuDoku {
 		//    if((vFlag&flag)!=0)
 		//        return false;
 		//    //SuDokuForm.gameTable.cell(x,y).vFlag|=flag;
-		//    //SuDokuForm.gameTable.cell(x,y).occNum=CountOccnum(vFlag|flag);
 		//    return true;
 		//}
 		//static int CountOccnum(int flag) {

@@ -23,7 +23,7 @@ namespace SuDoku {
 
 		public GameTable Pop() {
 			int last=gameTableList.Count-1;
-			if(last<1)
+			if(last<0)
 				return null;
 			GameTable work=gameTableList[last];
 			gameTableList.RemoveAt(last);

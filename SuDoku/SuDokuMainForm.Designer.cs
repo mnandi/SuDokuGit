@@ -23,9 +23,11 @@
 		/// the contents of this method with the code editor.
 		/// </summary>
 		private void InitializeComponent() {
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SuDokuForm));
 			this.panelTiles = new System.Windows.Forms.Panel();
 			this.pictureTable = new System.Windows.Forms.PictureBox();
 			this.panelControl = new System.Windows.Forms.Panel();
+			this.buttonResolveTable = new System.Windows.Forms.Button();
 			this.buttonCheckResolving = new System.Windows.Forms.Button();
 			this.buttonSaveGame = new System.Windows.Forms.Button();
 			this.comboGameName = new System.Windows.Forms.ComboBox();
@@ -44,7 +46,6 @@
 			this.buttonExit = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.comboGameType = new System.Windows.Forms.ComboBox();
-			this.buttonResolveTable = new System.Windows.Forms.Button();
 			this.panelTiles.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureTable)).BeginInit();
 			this.panelControl.SuspendLayout();
@@ -103,6 +104,16 @@
 			this.panelControl.Name = "panelControl";
 			this.panelControl.Size = new System.Drawing.Size(300, 555);
 			this.panelControl.TabIndex = 1;
+			// 
+			// buttonResolveTable
+			// 
+			this.buttonResolveTable.Location = new System.Drawing.Point(12, 166);
+			this.buttonResolveTable.Name = "buttonResolveTable";
+			this.buttonResolveTable.Size = new System.Drawing.Size(137, 30);
+			this.buttonResolveTable.TabIndex = 18;
+			this.buttonResolveTable.Text = "Megoldás";
+			this.buttonResolveTable.UseVisualStyleBackColor = true;
+			this.buttonResolveTable.Click += new System.EventHandler(this.buttonResolveTable_Click);
 			// 
 			// buttonCheckResolving
 			// 
@@ -292,16 +303,6 @@
 			this.comboGameType.TabIndex = 6;
 			this.comboGameType.SelectedIndexChanged += new System.EventHandler(this.comboGameType_SelectedIndexChanged);
 			// 
-			// buttonResolveTable
-			// 
-			this.buttonResolveTable.Location = new System.Drawing.Point(12, 166);
-			this.buttonResolveTable.Name = "buttonResolveTable";
-			this.buttonResolveTable.Size = new System.Drawing.Size(137, 30);
-			this.buttonResolveTable.TabIndex = 18;
-			this.buttonResolveTable.Text = "Megoldás";
-			this.buttonResolveTable.UseVisualStyleBackColor = true;
-			this.buttonResolveTable.Click += new System.EventHandler(this.buttonResolveTable_Click);
-			// 
 			// SuDokuForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -309,6 +310,7 @@
 			this.ClientSize = new System.Drawing.Size(857, 556);
 			this.Controls.Add(this.panelControl);
 			this.Controls.Add(this.panelTiles);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "SuDokuForm";
 			this.Text = "SuDoku";
 			this.panelTiles.ResumeLayout(false);

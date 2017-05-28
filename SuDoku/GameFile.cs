@@ -51,18 +51,20 @@ namespace SuDoku {
 					string iLine;
 					GameLineType regular=GameLineType.comment;
 					while((iLine=iStream.ReadLine())!=null) {
-						if(iLine[0]=='*') {
-							GameFile.AddLine(GameLineType.end,iLine);
-							regular=GameLineType.comment;
-							continue;
-						}
-						if(iLine[0]=='[') {
-							regular=GameLineType.game;
-							const string pattern=@"^\[([^[]*)\].*$";
-							Match m=Regex.Match(iLine,pattern,RegexOptions.IgnoreCase);
-							//if(!m.Success)
-							//	return -1;
-							gameNames.Add(m.Groups[1].Value);		//	Extract "[...]" from string
+						if(iLine.Length>0) {
+							if(iLine[0]=='*') {
+								GameFile.AddLine(GameLineType.end,iLine);
+								regular=GameLineType.comment;
+								continue;
+							}
+							if(iLine[0]=='[') {
+								regular=GameLineType.game;
+								const string pattern=@"^\[([^[]*)\].*$";
+								Match m=Regex.Match(iLine,pattern,RegexOptions.IgnoreCase);
+								//if(!m.Success)
+								//	return -1;
+								gameNames.Add(m.Groups[1].Value);		//	Extract "[...]" from string
+							}
 						}
 						GameFile.AddLine(regular,iLine);
 					}
@@ -98,7 +100,7 @@ namespace SuDoku {
 			return GetGameParameters(indx);
 		}
 		public static string GetGameRow(int gIndx,int rIndx) {
-			return listGames[gIndx][rIndx];
+			return (listGames[gIndx].Count<=rIndx)?"*":listGames[gIndx][rIndx];
 		}
 		public static GameParams GetGameParameters(int indx) {
 			if(indx<0)

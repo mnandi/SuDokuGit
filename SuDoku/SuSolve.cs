@@ -56,9 +56,10 @@ namespace SuDoku {
 			4,5,5,6,5,6,6,7,5,6,6,7,6,7,7,8		//	F0	+4
 		//	0 1 2 3 4 5 6 7 8 9 a b c d e f
 		};
+
 		static int level=0;						//	Solving (iteration) level
 		static int trynb=0;						//	Nbr of effective trying
-		//static int trycan=1;					//	Nbr of possible trying
+
 		sresult SuSolve(solvetype type) {
 			//******************************************************
 			//	Controlling the game solving
@@ -78,8 +79,13 @@ Recount:		int ret=SolveAll();
 				//		>0 - new fixed value found
 BackTry:		if(ret>=0) {
 					//	Ellenõrizni hogy vége-e, vagy tovább kell számolni
-					if(EndTest()!=0) {
+					//if(EndTest()!=0) {
 						//	=1 - all cells are fixed
+					//int etret=EndTest();
+					int gret=gameTable.EndTest();
+					if(gret<0) {
+						//	>=0 - there are fixable cells
+						//	=-1 - all cells are fixed
 						if(type==(int)solvetype.TESTRESULTS) {
 							//	task: count solutions
 							////                    SUTAB* tmptab;
@@ -130,7 +136,7 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 						//    SUTAB* wsutab=gameTable.prevtab;
 						//    free(psutab);
 						//    psutab=wsutab;
-						tableQueue.Pop();
+						gameTable=tableQueue.Pop();
 						--level;
 					} else {
 						//	Itt a vége, nincs megoldás
@@ -176,7 +182,7 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 				//wsutab->prevtab=psutab;
 				//psutab=wsutab;
 				tableQueue.Push(gameTable);
-				gameTable.y=-1;
+				gameTable.y=
 				gameTable.x=-1;
 				gameTable.tnb=0;
 				gameTable.level=level;
@@ -185,19 +191,21 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 			return (int)sresult.SOLVE_OK;	//	SolveExit(SOLVE_OK,"Jó megoldás !");
 		}
 
-		//******************************************************
-		//	Tests the program end
-		//******************************************************
-		int EndTest() {
-			//	returns: 0 - there are fixable cells
-			//			 1 - all cells are fixed
-			for(int xx=gameTable.boardsize; (xx--)>0; ) {
-				GameCell cell=gameTable.cell(xx);
-				if(gameTable.cell(xx).fixnum==0)
-					return 0;
-			}
-			return 1;
-		}
+//        //******************************************************
+//        //	Tests the program end
+//        //******************************************************
+//        int EndTest() {
+//            //	returns: 0 - there are fixable cells
+//            //			 1 - all cells are fixed
+//            for(int xx=gameTable.boardsize; (xx--)>0; ) {
+//#if DEBUG
+//                GameCell cell=gameTable.cell(xx);
+//#endif
+//                if(gameTable.cell(xx).fixnum==0)
+//                    return 0;
+//            }
+//            return 1;
+//        }
 
 		//======================================================
 		//	Searches the next tryable cell
@@ -242,26 +250,6 @@ EndSearch:	//	Searches the 1st best case
 					break;
 				}
 			}
-		}
-
-		//------------------------------------------------------
-		//	Decode to human readable number
-		//------------------------------------------------------
-		int BitToNum(int val) {
-			int num;
-			if(val==0)
-				return 0;
-			for(num=1; (val&1)==0; ++num) {
-				val>>=1;
-			}
-			return num;
-		}
-
-		//------------------------------------------------------
-		//	Convert from human readable number to internal form
-		//------------------------------------------------------
-		int NumToBit(int num) {
-			return (num==0)?0:(1<<(num-1));
 		}
 
 		//******************************************************
@@ -342,7 +330,6 @@ EndSearch:	//	Searches the 1st best case
 OnlyOne:
 					gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 					gameTable.cell(x,y).cannum=0;
-					gameTable.cell(x,y).fixd=1;
 					return 1;	//	fixed a new number
 				default:	//	Set the cell possible values
 					lst=TestList(x,y,val);
@@ -437,16 +424,6 @@ OnlyOne:
 				}
 			}
 			return val&actGameDef.sumask;
-		}
-
-		//------------------------------------------------------
-		//	Count bits in a bitlist
-		//------------------------------------------------------
-		int CountBits(int val) {
-			return (defnumnb[(val>>24)&0xFF]+
-					defnumnb[(val>>16)&0xFF]+
-					defnumnb[(val>>8)&0xFF]+
-					defnumnb[val&0xFF]);
 		}
 
 		//------------------------------------------------------
@@ -606,17 +583,47 @@ OnlyOne:
 			//    psutab=ssutab;
 			//    psutab->prevtab=NULL;
 			while(tableQueue.Size>0) {
-				tableQueue.Pop();
+				gameTable=tableQueue.Pop();
 			}
 			//    psutab->level=
 			//    psutab->tnb=0;
 			//    psutab->x=
 			//    psutab->y=-1;
-			//    psutab->level=
-			//    psutab->tnb=0;
-			//    psutab->x=
-			//    psutab->y=-1;
+			gameTable.level=
+			gameTable.tnb=0;
+			gameTable.x=
+			gameTable.y=-1;
 			return ret;
+		}
+
+		//------------------------------------------------------
+		//	Decode to human readable number
+		//------------------------------------------------------
+		public static int BitToNum(int val) {
+			int num;
+			if(val==0)
+				return 0;
+			for(num=1; (val&1)==0; ++num) {
+				val>>=1;
+			}
+			return num;
+		}
+
+		//------------------------------------------------------
+		//	Convert from human readable number to internal form
+		//------------------------------------------------------
+		public static int NumToBit(int num) {
+			return (num==0)?0:(1<<(num-1));
+		}
+
+		//------------------------------------------------------
+		//	Count bits in a bitlist
+		//------------------------------------------------------
+		public static int CountBits(int val) {
+			return (defnumnb[(val>>24)&0xFF]+
+					defnumnb[(val>>16)&0xFF]+
+					defnumnb[(val>>8)&0xFF]+
+					defnumnb[val&0xFF]);
 		}
 	}
 }
