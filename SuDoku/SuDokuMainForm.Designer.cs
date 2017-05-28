@@ -27,6 +27,8 @@
 			this.panelTiles = new System.Windows.Forms.Panel();
 			this.pictureTable = new System.Windows.Forms.PictureBox();
 			this.panelControl = new System.Windows.Forms.Panel();
+			this.buttonCancel = new System.Windows.Forms.Button();
+			this.textMaxLevel = new System.Windows.Forms.TextBox();
 			this.textTryNb = new System.Windows.Forms.TextBox();
 			this.label7 = new System.Windows.Forms.Label();
 			this.label6 = new System.Windows.Forms.Label();
@@ -52,8 +54,6 @@
 			this.buttonExit = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.comboGameType = new System.Windows.Forms.ComboBox();
-			this.textMaxLevel = new System.Windows.Forms.TextBox();
-			this.buttonCancel = new System.Windows.Forms.Button();
 			this.panelTiles.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureTable)).BeginInit();
 			this.panelControl.SuspendLayout();
@@ -121,8 +121,28 @@
 			this.panelControl.Size = new System.Drawing.Size(300, 555);
 			this.panelControl.TabIndex = 1;
 			// 
+			// buttonCancel
+			// 
+			this.buttonCancel.BackColor = System.Drawing.Color.Red;
+			this.buttonCancel.Location = new System.Drawing.Point(152, 249);
+			this.buttonCancel.Name = "buttonCancel";
+			this.buttonCancel.Size = new System.Drawing.Size(135, 30);
+			this.buttonCancel.TabIndex = 26;
+			this.buttonCancel.Text = "Megoldás leállítás";
+			this.buttonCancel.UseVisualStyleBackColor = false;
+			this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
+			// 
+			// textMaxLevel
+			// 
+			this.textMaxLevel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.textMaxLevel.Location = new System.Drawing.Point(51, 518);
+			this.textMaxLevel.Name = "textMaxLevel";
+			this.textMaxLevel.Size = new System.Drawing.Size(36, 22);
+			this.textMaxLevel.TabIndex = 25;
+			// 
 			// textTryNb
 			// 
+			this.textTryNb.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.textTryNb.Location = new System.Drawing.Point(96, 518);
 			this.textTryNb.Name = "textTryNb";
 			this.textTryNb.Size = new System.Drawing.Size(57, 22);
@@ -130,6 +150,7 @@
 			// 
 			// label7
 			// 
+			this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.label7.AutoSize = true;
 			this.label7.Location = new System.Drawing.Point(93, 501);
 			this.label7.Name = "label7";
@@ -139,6 +160,7 @@
 			// 
 			// label6
 			// 
+			this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.label6.AutoSize = true;
 			this.label6.Location = new System.Drawing.Point(9, 501);
 			this.label6.Name = "label6";
@@ -148,6 +170,7 @@
 			// 
 			// textActLevel
 			// 
+			this.textActLevel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.textActLevel.Location = new System.Drawing.Point(11, 518);
 			this.textActLevel.Name = "textActLevel";
 			this.textActLevel.Size = new System.Drawing.Size(36, 22);
@@ -371,24 +394,6 @@
 			this.comboGameType.Size = new System.Drawing.Size(142, 24);
 			this.comboGameType.TabIndex = 6;
 			this.comboGameType.SelectedIndexChanged += new System.EventHandler(this.comboGameType_SelectedIndexChanged);
-			// 
-			// textMaxLevel
-			// 
-			this.textMaxLevel.Location = new System.Drawing.Point(51, 518);
-			this.textMaxLevel.Name = "textMaxLevel";
-			this.textMaxLevel.Size = new System.Drawing.Size(36, 22);
-			this.textMaxLevel.TabIndex = 25;
-			// 
-			// buttonCancel
-			// 
-			this.buttonCancel.BackColor = System.Drawing.Color.Red;
-			this.buttonCancel.Location = new System.Drawing.Point(152, 249);
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.Size = new System.Drawing.Size(135, 30);
-			this.buttonCancel.TabIndex = 26;
-			this.buttonCancel.Text = "Megoldás leállítás";
-			this.buttonCancel.UseVisualStyleBackColor = false;
-			this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
 			// 
 			// SuDokuForm
 			// 

@@ -10,17 +10,19 @@ using System.Runtime.Serialization.Formatters.Binary;
 namespace SuDoku {
 	[Serializable]
 	public class GameCell: ICloneable {
-		public int	cannum;		//   possible values (if not fixed)
-        public int	imposs;		//1;   //   unfillable cell
-        public int	selected;	//1;   //   selected cell
-        public int	tried;		//1;   //   cell with a tried number
-        public int	orig=0;		//1;   //   cell with original input number
+		public int	cannum;		//	possible values (if not fixed)
+        public int	imposs;		//	unfillable cell
+        public int	selected;	//	selected cell
+        public int	tried;		//	cell with a tried number
+        public int	orig=0;		//	cell with original input number
 
 		int cX;			//	cell X coord
 		int cY;			//	cell Y coord
 
+		public int inpsel=0;		//	selected input cell
 		public int fixNum=0;		//	cell value: -1=empty, 0-not used, 1-n
 		public int fixbitnum { get { return (fixNum<=0)?0:1<<(fixNum-1); } }
+
 		public GameCell(int x,int y) {
 			cX=x;
 			cY=y;
@@ -46,6 +48,8 @@ namespace SuDoku {
 		int nummask;
 		int tabsiz;
 		public int diagFlag;
+		public int selectedX=-1;
+		public int selectedY=-1;
 
 		public int xCells;			//	cell x position in table
 		public int yCells;			//	cell y position in table
@@ -61,6 +65,8 @@ namespace SuDoku {
 			yCells=ny;
 			tabsiz=nx*ny;
 			nummask=(1<<tabsiz)-1;
+			selectedX=
+			selectedY=-1;
 			cellList=new List<GameCell>();
 			for(int yy=0;yy<tabsiz;yy++){
 				for(int xx=0; xx<tabsiz; xx++) {
@@ -74,6 +80,18 @@ namespace SuDoku {
 		public GameCell cell(int x) { return cellList[x]; }
 		public GameCell cell(int x,int y) { return cellList[y*tabSize+x]; }
 		public GameCell cell(Point pt) { return cellList[pt.Y*tabSize+pt.X]; }
+		public void SetSelectedCell(int x,int y) {
+			int ox=selectedX;
+			int oy=selectedY;
+			if((ox>=0)&&(oy>=0)) {
+				cell(ox,oy).inpsel=0;	//	Clear previous
+			}
+			selectedX=x;
+			selectedY=y;
+			if((x>=0)&&(y>=0)) {
+				cell(x,y).inpsel=1;		//	Set actual
+			}
+		}
 
 		public int EndTest() {
 #if DEBUG

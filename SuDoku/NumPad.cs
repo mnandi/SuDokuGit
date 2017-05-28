@@ -87,7 +87,6 @@ namespace SuDoku {
 
 		private void NumPad_KeyPress(object sender,KeyPressEventArgs e) {
 			int chrnum=e.KeyChar;
-			int num,mask;
 			numButton=0;
 			numMask=0;
 			if(chrnum==0x1B){

@@ -111,6 +111,7 @@ namespace SuDoku {
 		#region Game testing buttons
 		private void AnalyzeResult(solvetype type) {
 			gameTable.ClearSelects();
+			tableQueue=new TableQueue();
 			GameTable gameTableSave=gameTable.DeepClone(gameTable);
 			sresult sret=SuSolve(type);
 			//		-1	- no solution
@@ -256,6 +257,7 @@ namespace SuDoku {
 				yy--;
 			if((yy<0)||(yy>=gameTable.tabSize))
 				return;
+			gameTable.SetSelectedCell(xx,yy);
 			item=gameTable.cell(xx,yy);
 			int x=SetLeft(xx,cellSize)+cellSize*7/10;
 			int y=SetTop(yy,cellSize)+cellSize*7/10;
@@ -263,8 +265,10 @@ namespace SuDoku {
 			int num;
 			if(e.Button==MouseButtons.Left) {
 				num=ShowNumpad(ptCell,item,true);
+				pictureTable.Focus();
 			} else {
 				num=ShowNumpad(ptCell,item,false);
+				pictureTable.Focus();
 			}
 			if(num>=0) {
 				item.fixNum=num;
@@ -397,6 +401,49 @@ namespace SuDoku {
 
 		private void buttonCancel_Click(object sender,EventArgs e) {
 			cancelFlag=true;
+		}
+
+		protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e) {
+			e.IsInputKey=true;
+			base.OnPreviewKeyDown(e);
+		}
+    
+		private void pictureTable_PreviewKeyDown(object sender,PreviewKeyDownEventArgs e) {
+			switch(e.KeyCode){
+				case Keys.Down:
+				case Keys.Up:
+				case Keys.Left:
+				case Keys.Right:
+				case Keys.NumPad0:
+				case Keys.Enter:
+				case Keys.Delete:
+				case Keys.Space:
+					e.IsInputKey=true;
+					break;
+				default:
+					//if(e.KeyCode==Keys.A)
+					e.IsInputKey=true;
+					break;
+			}
+			e.IsInputKey=true;
+		}
+
+		private void SuDokuForm_KeyDown(object sender,KeyEventArgs e) {
+			switch(e.KeyCode) {
+				case Keys.Down:
+				case Keys.Up:
+				case Keys.Left:
+				case Keys.Right:
+				case Keys.NumPad0:
+				case Keys.Enter:
+				case Keys.Delete:
+				case Keys.Space:
+					break;
+				default:
+					//if(e.KeyCode==Keys.A)
+					break;
+			}
+
 		}
 	}
 }
