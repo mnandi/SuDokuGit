@@ -281,6 +281,8 @@ namespace SuDoku {
 			pictureTable_Resize(null,null);
 		}
 		void RedrawTable() {
+            if(gameTable==null)
+                return;
 			gameTable.xCells=actGameDef.gxCells;
 			gameTable.yCells=actGameDef.gyCells;
 			gameTable.diagFlag=actGameDef.gxCross;
@@ -618,5 +620,9 @@ namespace SuDoku {
 			comboLanguage.SelectedIndexChanged+=comboLanguage_SelectedIndexChanged;
 		}
 		#endregion
+
+        private void numericLevel_ValueChanged(object sender, EventArgs e) {
+
+        }
 	}
 }
