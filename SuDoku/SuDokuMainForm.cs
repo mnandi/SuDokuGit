@@ -27,8 +27,9 @@ namespace SuDoku {
 		static readonly Color back0Color=Color.White;			//	Default
 		static readonly Color back1Color=Color.PaleGoldenrod;	//	XCross
 		static public GameDef actGameDef=null;				//	Actual game definition
-		static public GameTable gameTable;					//	Actual game table
+		static public GameTable gameTable=null;					//	Actual game table
 		static public TableQueue tableQueue=null;			//	Previous game tables
+		static public TableQueue resultList=null;	
 		static SolidBrush br=new SolidBrush(borderColor);	//	Draw rectangle border
 		static SolidBrush bo=new SolidBrush(text0Color);	//	Fix      Item text color
 		static SolidBrush bs=new SolidBrush(text1Color);	//	Selected Item text color
@@ -110,8 +111,7 @@ namespace SuDoku {
 		#endregion
 		#region Game testing buttons
 		private void AnalyzeResult(solvetype type) {
-			gameTable.ClearSelects();
-			tableQueue=new TableQueue();
+
 			GameTable gameTableSave=gameTable.DeepClone(gameTable);
 			sresult sret=SuSolve(type);
 			//		-1	- no solution
@@ -188,7 +188,6 @@ namespace SuDoku {
 			int cellSizX=pictureTable.Width-((gameTable.tabSize+1)*Constants.cellOffs+(actGameDef.yCells-1)*Constants.groupOffs);
 			int cellSizY=pictureTable.Height-((gameTable.tabSize+1)*Constants.cellOffs+(actGameDef.xCells-1)*Constants.groupOffs);
 			cellSize=Math.Min(cellSizX,cellSizY)/gameTable.tabSize;
-			//cellSize=(Math.Min(pictureTable.Width,pictureTable.Height)-3*gameTable.tabSize)/gameTable.tabSize;
 			int cellsSiz=gameTable.tabSize*cellSize;
 			baseX=baseY=0;
 			baseX=(pictureTable.Width-SetLeft(gameTable.tabSize,cellSize))/2;
@@ -234,9 +233,7 @@ namespace SuDoku {
 		private void pictureTable_Resize(object sender,EventArgs e) {
 			if(this.WindowState!=FormWindowState.Normal)
 				return;
-			//if(sender!=null) {
 			pictureTable.Image=new Bitmap(pictureTable.Width,pictureTable.Height);	//	bitmap of table
-			//}
 			RedrawTable();
 		}
 
@@ -354,7 +351,6 @@ namespace SuDoku {
 			if((actGameDef.xCells!=pars.x)||(actGameDef.yCells!=pars.y)||(actGameDef.xCross!=pars.diag)) {
 				actGameDef=new GameDef(pars.x,pars.y,pars.diag,comboGameType.Text);
 				gameTable.InitTable(pars.x,pars.y);
-				//pictureTable_Resize(null,null);
 			}
 			for(int yy=0; yy<pars.size; yy++) {
 				string rowLine=GameFile.GetGameRow(gameIndex,yy+1);
@@ -388,7 +384,6 @@ namespace SuDoku {
 				if((actGameDef.xCells!=pars.x)||(actGameDef.yCells!=pars.y)||(actGameDef.xCross!=pars.diag)) {
 					actGameDef=new GameDef(pars.x,pars.y,pars.diag,comboGameType.Text);
 					gameTable.InitTable(pars.x,pars.y);
-					//pictureTable_Resize(null,null);
 				}
 			} else {
 				//	Replace old game - replace game definition

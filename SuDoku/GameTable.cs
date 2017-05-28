@@ -158,21 +158,11 @@ namespace SuDoku {
 		//======================================================================
 		public void ClearSelects() {
 			for(int xx=boardsize;(xx--)>0;){
-				//if(psutab->sudoku[xx].selected==1){
-				//	psutab->sudoku[xx].selected=0;
-				//	//RedrawCell(xx%susize,xx/susize);
-				//}
-				//if(psutab->sudoku[xx].imposs==1){
-				//	psutab->sudoku[xx].imposs=0;
-				//	//RedrawCell(xx%susize,xx/susize);
-				//}
 				if(this.cell(xx).selected==1){
 					this.cell(xx).selected=0;
-					//RedrawCell(xx%susize,xx/susize);
 				}
 				if(this.cell(xx).imposs==1) {
 					this.cell(xx).imposs=0;
-					//RedrawCell(xx%susize,xx/susize);
 				}
 
 			}
@@ -232,8 +222,6 @@ namespace SuDoku {
 			int val=0;
 			int ix,iy;
 			CellResult cRes=new CellResult();
-			//int y0=y/susizey*susizey;
-			//int x0=x/susizex*susizex;
 			int y0=y/yCells*yCells;
 			int x0=x/xCells*xCells;
 			//	Collects bits of column
@@ -241,7 +229,6 @@ namespace SuDoku {
 			for(iy=tabSize; (iy--)>0; ) {
 				if(iy==y)
 					continue;			//	Skip at actual cell
-				//int cellx=GetTableX(ix,iy);
 				val|=TestFlag(cellnum,ix,iy,cRes);
 			}
 			//	Collects bits of row
@@ -249,7 +236,6 @@ namespace SuDoku {
 			for(ix=tabSize; (ix--)>0; ) {
 				if(ix==x)
 					continue;			//	Skip at actual cell
-				//int cellx=GetTableX(ix,iy);
 				val|=TestFlag(cellnum,ix,iy,cRes);
 			}
 			//	Collects bits of block
@@ -257,12 +243,10 @@ namespace SuDoku {
 				for(ix=x0+xCells; (ix--)>x0; ) {
 					if((iy==y)&&(ix==x))
 						continue;		//	Skip at actual cell
-					//int cellx=GetTableX(ix,iy);
 					val|=TestFlag(cellnum,ix,iy,cRes);
 				}
 			}
 			//	If diagonals are observed
-			//if(diagfl==DIAGGAME){
 			if(diagFlag==(int)GameType.DIAGGAME) {
 				if(x==y) {
 					//	Collects bits of top-down diagonal
@@ -270,7 +254,6 @@ namespace SuDoku {
 						if(ix==x)
 							continue;	//	Skip at actual cell
 						iy=ix;
-						//int cellx=GetTableX(ix,iy);
 						val|=TestFlag(cellnum,ix,iy,cRes);
 					}
 				}
@@ -280,7 +263,6 @@ namespace SuDoku {
 						if(ix==x)
 							continue;	//	Skip at actual cell
 						iy=tabSize-ix-1;
-						//int cellx=GetTableX(ix,iy);
 						val|=TestFlag(cellnum,ix,iy,cRes);
 					}
 				}

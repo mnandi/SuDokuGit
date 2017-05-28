@@ -128,8 +128,6 @@ namespace SuDoku {
 			//	9 ? comment
 			// 10 comment
 			Match m=Regex.Match(gameid,pattern,RegexOptions.IgnoreCase);
-			//if(!m.Success)
-			//	return null;
 			gameParams.idline=gameid;
 			gameParams.name=m.Groups[1].Value;		//	Extract "[...]" from string
 			gameParams.diag=(string.IsNullOrWhiteSpace(m.Groups[4].Value)?(int)GameType.NODIAGGAME:(int)GameType.DIAGGAME);
@@ -200,7 +198,6 @@ namespace SuDoku {
 			}
 			if(listItem==null) {
 				listItem=new List<string>();
-				//gameItemType=GameLineType.none;
 			}
 			listItem.Add(line);
 		}

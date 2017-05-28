@@ -75,11 +75,14 @@ namespace SuDoku {
 			//	Flg:	-1	- MAKERESULT	Solve game
 			//			=0	- TESTRESULTS	Count solutions
 			//	Returns:
-			//		<0	- No solution
-			//		=0	- Solution found
-			//		>0	- More than one solution exist
+			//		-1	- Solution found
+			//		0	- No solution
+			//		1	- 1 solution
+			//		>1	- More than one solution exist
 			int nbresults=0;
-			TableQueue resultList=new TableQueue();
+			gameTable.ClearSelects();
+			tableQueue=new TableQueue();
+			resultList=new TableQueue();
 			trynb=0;
 			maxlev=0;
 			cancelFlag=false;
@@ -93,39 +96,11 @@ Recount: if(cancelFlag)
 				//		>0 - new fixed value found
 BackTry:		if(ret>=0) {
 					//	Ellenõrizni hogy vége-e, vagy tovább kell számolni
-					//if(EndTest()!=0) {
-						//	=1 - all cells are fixed
 					int eret=gameTable.EndTest();
 					if(eret<0) {
 						//	>=0 - there are fixable cells
 						//	=-1 - all cells are fixed
 						if(type==(int)solvetype.TESTRESULTS) {
-						////    SUTAB* tmptab;
-						////    if(nbresults==0) {
-						////        while(pretab!=NULL) {
-						////            tmptab=pretab->prevtab;
-						////            free(pretab);
-						////            pretab=tmptab;
-						////        }
-						////        nbresults++;
-						////        pretab=(SUTAB*)malloc(sizeof(SUTAB));
-						////        memcpy(pretab,psutab,sizeof(SUTAB));
-						////        pretab->prevtab=NULL;
-						////        if(psutab->prevtab==NULL) {
-						////            //	No empty cell in game table
-						////            break;
-						////        }
-						////        goto BackStep;
-						////    } else {
-						////        nbresults++;
-						////        tmptab=pretab;
-						////        pretab=(SUTAB*)malloc(sizeof(SUTAB));
-						////        memcpy(pretab,psutab,sizeof(SUTAB));
-						////        pretab->prevtab=tmptab;
-						////        goto BackStep;
-						////        //	return SOLVE_MORE;
-						////    }
-						////}
 							if(nbresults==0) {
 								int qSize=tableQueue.gameTableList.Count;
 								if(qSize==0) {
@@ -150,11 +125,7 @@ BackTry:		if(ret>=0) {
 				} else {
 					//	<0 - here no solution
 BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
-					//if(gameTable.prevtab!=NULL){
 					if(tableQueue.Size>0) {
-						//    SUTAB* wsutab=gameTable.prevtab;
-						//    free(psutab);
-						//    psutab=wsutab;
 						gameTable=tableQueue.Pop();
 						--level;
 						textActLevel.Text=level.ToString();
@@ -166,7 +137,6 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 								return sresult.SOLVE_NORESULT;
 							default:
 								if(nbresults<(int)sresult.SOLVE_MORERESULT)
-									//if(gameTable.prevtab!=NULL)
 									if(tableQueue.Size>0)
 										goto BackStep;
 								return (sresult)(Math.Min(nbresults,(int)sresult.SOLVE_MORERESULT));
@@ -176,9 +146,7 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 
 				//	Következõ próbálkozás
 				if(gameTable.x>=0) {
-					//int cellx=GetTableX(gameTable.x,gameTable.y);
 					if(gameTable.cell(gameTable.x,gameTable.y).cannum==0) {
-						//goto BackStep;
 						ret=-1;
 						goto BackTry;
 					}
@@ -201,10 +169,6 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 				trynb++;
 				textTryNb.Text=trynb.ToString();
 				textTryNb.Refresh();
-				//SUTAB* wsutab=(SUTAB*)malloc(sizeof(SUTAB));
-				//memcpy(wsutab,psutab,sizeof(SUTAB));
-				//wsutab->prevtab=psutab;
-				//psutab=wsutab;
 				tableQueue.Push(gameTable);
 				gameTable.y=
 				gameTable.x=-1;
@@ -223,13 +187,11 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 			//	this arrays contains the indices of 1st cell with [n] possible value cases
 			int[] ypos=new int[(int)Const.SUSIZEMX+1];				//	+1 because 0 index exist but not used
 			int[] xpos=new int[(int)Const.SUSIZEMX+1];				//	+1 because 0 index exist but not used
-			//memset(xpos,-1,sizeof(xpos));	//	Set all to -1
 			for(int ii=0; ii<xpos.Length; ii++) {
 				xpos[ii]=-1;
 			}
 			for(iy=gameTable.tabSize; (iy--)>0; ) {
 				for(ix=gameTable.tabSize; (ix--)>0; ) {
-					//int cellx=GetTableX(ix,iy);	///	iy*susize+ix;
 					int val=gameTable.cell(ix,iy).cannum;
 					if(val==0)
 						continue;	//	no possible value
@@ -252,10 +214,8 @@ EndSearch:	//	Searches the 1st best case
 				if(xpos[iz]>=0) {
 					int yy=gameTable.y=ypos[iz];
 					int xx=gameTable.x=xpos[iz];
-					//int cellx=GetTableX(gameTable.x,gameTable.y);
 					gameTable.cell(xx,yy).tried=1;
 					break;
-					//?return;
 				}
 			}
 		}
@@ -270,16 +230,13 @@ EndSearch:	//	Searches the 1st best case
 			int val;
 			for(iy=gameTable.tabSize; (iy--)>0; ) {
 				for(ix=gameTable.tabSize; (ix--)>0; ) {
-					//int cellx=GetTableX(ix,iy);	///	iy*susize+ix;
 					if((gameTable.cell(ix,iy).fixbitnum)==0)
 						continue;	//	Empty input item
 					val=gameTable.CountCellFlag(ix,iy);	//	val: Impossibles in ix,iy
 					if((val&gameTable.cell(ix,iy).fixbitnum)!=0) {
-						//if((gameTable.cell(ix,iy).orig==0)||(phase==(int)PHASE.PHcreate)) {
 						if((gameTable.cell(ix,iy).orig==0)||(gameState==false)) {
 							gameTable.cell(ix,iy).selected=1;
 							gameTable.cell(ix,iy).imposs=1;
-							//?RedrawCell(ix,iy);
 						}
 						flg=1;
 					}
@@ -299,7 +256,6 @@ EndSearch:	//	Searches the 1st best case
 			int ix,iy,ret,flg=0;
 			for(iy=gameTable.tabSize; (iy--)>0; ) {
 				for(ix=gameTable.tabSize; (ix--)>0; ) {
-					//int cellx=GetTableX(ix,iy);
 					if((gameTable.cell(ix,iy).fixbitnum)!=0)
 						continue;
 					ret=SolveOne(ix,iy);	//	Sets the possible values in a cell
@@ -324,9 +280,7 @@ EndSearch:	//	Searches the 1st best case
 
 			int val=gameTable.CountCellFlag(x,y);	//	val: Impossibles in iy,ix
 			int lst;
-			//int	cellx=GetTableX(x,y);	///	y*susize+x;
 			if((val&gameTable.cell(x,y).fixbitnum)!=0) {
-				//ASSERT(0);
 				return -2;	//	There are the same number as own
 			}
 			switch(gameTable.tabSize-CountBits(val)) {
@@ -367,7 +321,6 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 				case 1:
 					return (~fix)&actGameDef.sumask;
 				default:
-					//int cellx=GetTableX(x,y);
 					gameTable.cell(x,y).imposs=1;
 					return actGameDef.sumask;
 			}
@@ -390,7 +343,6 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 				if(iy==y)
 					continue;				//	skips the actual cell
 				int cellv;
-				//int cellx=GetTableX(x,iy);
 				if((cellv=gameTable.cell(x,iy).fixbitnum)!=0) {
 					++nn;
 					yval|=cellv;			//	set if own block line
@@ -410,7 +362,6 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 						for(iy=gameTable.tabSize; (iy--)>0; ) {
 							if((iy>=y0)&&(iy<(y0+actGameDef.yCells)))
 								continue;	//	skip in own bloxk
-							//int cellx=GetTableX(ix,iy);
 							if(gameTable.cell(ix,iy).fixbitnum==sunum)
 								nn++;
 						}
@@ -427,7 +378,6 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 			for(nn=0,ix=x0+actGameDef.xCells; --ix>=x0; ) {
 				if(ix==x)
 					continue;				//	skips the actual cell
-				//int cellx=GetTableX(ix,y);	//	y*susize+ix;
 				int cellv;
 				if((cellv=gameTable.cell(ix,y).fixbitnum)!=0) {
 					++nn;
@@ -448,7 +398,6 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 						for(ix=gameTable.tabSize; (ix--)>0; ) {
 							if((ix>=x0)&&(ix<(x0+actGameDef.xCells)))
 								continue;	//	skip in own bloxk
-							//int cellx=GetTableX(ix,iy);
 							if(gameTable.cell(ix,iy).fixbitnum==sunum)
 								nn++;
 						}
@@ -471,7 +420,6 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 			int x=gameTable.x;
 			if(x<0)
 				return -1;		//	No try happened
-			//int cellx=GetTableX(x,y);
 			int val=gameTable.cell(x,y).cannum;
 			if(val==0) {
 				gameTable.y=
@@ -481,9 +429,7 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 			for(iz=gameTable.tabSize; iz>0; iz--) {
 				int sunum=NumToBit(iz);
 				if((val&sunum)!=0) {
-					//int cellx=GetTableX(x,y);	///y*susize+x;
 					gameTable.cell(x,y).cannum&=~sunum;			//	remove bit of num to possible value list
-					//gameTable.cell(x,y).fixNum=BitToNum(sunum);
 					gameTable.cell(x,y).fixNum=iz;
 					break;
 				}
