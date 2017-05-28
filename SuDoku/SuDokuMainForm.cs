@@ -45,7 +45,7 @@ namespace SuDoku {
 		static int baseX=0;			//	game table left position
 		static int baseY=0;			//	game table top  position
 		static int cellSize;		//	Cell size in pixels
-		static int selnb=0;
+		static bool cancelFlag=false;
 		#endregion
 		#region Game initialization & gaming
 		public SuDokuForm() {
@@ -74,7 +74,7 @@ namespace SuDoku {
 				numericLevel.Enabled=
 				comboGameName.Enabled=
 				textGameComment.Enabled=false;
-				gameTable.ClearSelects(ref selnb);
+				gameTable.ClearSelects();
 			} else {
 				buttonStartGame.Text="--> Játék indítása";
 				comboGameType.Enabled=
@@ -109,48 +109,65 @@ namespace SuDoku {
 		}
 		#endregion
 		#region Game testing buttons
-		private void buttonCheckResolving_Click(object sender,EventArgs e) {
-			gameTable.ClearSelects(ref selnb);
+		private void AnalyzeResult(solvetype type) {
+			gameTable.ClearSelects();
 			GameTable gameTableSave=gameTable.DeepClone(gameTable);
-			sresult sret=SuSolve(solvetype.MAKERESULT/*TESTRESULTS*/);
+			sresult sret=SuSolve(type);
+			//		-1	- no solution
+			//		 0	- solved
+			//		>0	- other solve error
 			switch(sret) {
-				case sresult.SOLVE_OK:
-					var ret=MessageBox.Show("A tábla megoldható\r\nMutassam a végeredményt?","Megoldhatóság",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
-					if(ret==DialogResult.Yes) {
-						pictureTable_Resize(null,null);
-						MessageBox.Show("Tovább","Kilépés",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
-					}
+				case sresult.SOLVE_IMPOSSIBLE:	//		"Lehetetlen megoldás"
+					MessageBox.Show("A tábla nem megoldható","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
+					break;
+				case sresult.SOLVE_CANCELLED:
+					MessageBox.Show("A művelet leállítva","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
+					break;
+				case sresult.SOLVE_OK:		//	-1	"Jó megoldás !"
+					//	Returns:
+					pictureTable_Resize(null,null);
+					MessageBox.Show("A tábla megoldása\r\nBefejezem","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+					break;
+				case sresult.SOLVE_NORESULT:	//	 0	"Hiba, nincs megoldás"
+					MessageBox.Show("A tábla nem oldható meg","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
+					break;
+				case sresult.SOLVE_ONERESULT:
+					MessageBox.Show("Egy megoldás is van!","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+					break;
+				case sresult.SOLVE_MORERESULT:
+					MessageBox.Show(string.Format("Több, legalább {0} megoldás is van!",(int)sret),"Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
 				default:
-					MessageBox.Show("A tábla nem oldható meg!","Megoldhatóság",MessageBoxButtons.OK,MessageBoxIcon.Error);
+					MessageBox.Show(string.Format("Több, {0} megoldás is van!",(int)sret),"Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
 			}
 			gameTable=gameTableSave;
 			gameTableSave=null;
-			gameTable.ClearSelects(ref selnb);
+			gameTable.ClearSelects();
 			pictureTable_Resize(null,null);
+			//    case sresult.SOLVE_OK:
+			//        var ret=MessageBox.Show("A tábla megoldható\r\nMutassam a végeredményt?","Megoldhatóság",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
+			//        if(ret==DialogResult.Yes) {
+			//            pictureTable_Resize(null,null);
+			//            MessageBox.Show("Tovább","Kilépés",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+			//        MessageBox.Show("A tábla nem oldható meg!","Megoldhatóság",MessageBoxButtons.OK,MessageBoxIcon.Error);
+			//    case sresult.SOLVE_IMPOSSIBLE:	//		"Lehetetlen megoldás"
+			//        MessageBox.Show("A tábla nem megoldható","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
+			//    case sresult.SOLVE_OK:		//	-1	"Jó megoldás !"
+			//        MessageBox.Show("A tábla megoldása\r\nBefejezem","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+			//    case sresult.SOLVE_NORESULT:	//	 0	"Hiba, nincs megoldás"
+			//        MessageBox.Show("A tábla nem oldható meg","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
+			//        MessageBox.Show(string.Format("A több {0} megoldása is van!",(int)tret),"Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+		}
+		private void buttonCheckResolving_Click(object sender,EventArgs e) {
+			AnalyzeResult(solvetype.TESTRESULTS);
 		}
 		private void buttonTestGame_Click(object sender,EventArgs e) {
-			int conflictNb=0;
-			int conflictAll=0;
-			gameTable.ClearSelects(ref selnb);
-			for(int yy=0; yy<gameTable.tabSize; yy++) {
-				for(int xx=0; xx<gameTable.tabSize; xx++) {
-					GameCell cell=gameTable.cell(xx,yy);
-					if(cell.fixNum<1)
-						continue;
-					CellResult cErrors=gameTable.CountCellFlag(cell);
-					int errCount=cErrors.errList.Count;
-					if(errCount==0)
-						continue;
-					conflictNb++;
-					conflictAll+=errCount;
-					for(int ii=0; ii<errCount; ii++) {
-						//?	Show conflicts
-					}
-				}
-			}
-			gameTable.ClearSelects(ref selnb);
+			//	Test table
+			AnalyzeResult(solvetype.TESTRESULTS);
+		}
+		private void buttonResolveTable_Click(object sender,EventArgs e) {
+			AnalyzeResult(solvetype.MAKERESULT);
 		}
 		#endregion
 		#region Game table drawing
@@ -348,58 +365,6 @@ namespace SuDoku {
 		}
 		#endregion
 
-		private void buttonResolveTable_Click(object sender,EventArgs e) {
-			// TODO: Add your control notification handler code here
-			//if(timerId==TIMERID){
-			//    KillTimer(timerId);
-			//    timerId=0;
-			//}
-			gameTable.ClearSelects(ref selnb);
-			GameTable gameTableSave=gameTable.DeepClone(gameTable);
-
-			//CString secs(" 0:00:00");
-			//CStatic* pTM=(CStatic*)GetDlgItem(IDC_TIMER);
-			//pTM->SetWindowText(secs);
-
-			int ret;
-			if((ret=CheckAll())!=0) {
-				pictureTable_Resize(null,null);
-				MessageBox.Show("A tábla nem megoldható","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Error);
-				return;
-			}
-
-			//RedrawTable();
-			string msg;
-			sresult tret=SuSolve(/*solvetype.MAKERESULT*/solvetype.TESTRESULTS);
-			//		-1	- no solution
-			//		 0	- solved
-			//		>0	- other solve error
-			pictureTable_Resize(null,null);
-			switch(tret){
-				case sresult.SOLVE_MORE:		//	-9	"More then one solution"
-				case sresult.SOLVE_NOMEM1:		//		"No enough memory space"
-				case sresult.SOLVE_UNPOSSIBLE:	//		"Lehetetlen megoldás"
-				case sresult.SOLVE_NOMEM2:		//		"No enough memory space"
-				case sresult.SOLVE_FILE:		//		"Wrong file parameter"
-				case sresult.SOLVE_PARAM:		//		"Wrong game parameter"
-				case sresult.SOLVE_TABLE:		//		"Not enough game lines"
-				case sresult.SOLVE_DATA:		//	-2	"Data error"
-				case sresult.SOLVE_NORESULT:	//	 0	"Hiba, nincs megoldás"
-					MessageBox.Show(string.Format("A több {0} megoldása is van!",tret),"Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
-					break;
-				case sresult.SOLVE_OK:		//	-1	"Jó megoldás !"
-					//	Returns:
-					MessageBox.Show("A tábla megoldása\r\nBefejezem","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
-					break;
-				default:
-					MessageBox.Show("A tábla nem megoldható","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Error);
-					//AfxMessageBox(msg,MB_OK);
-					break;
-			}
-			gameTable=gameTableSave;
-			gameTableSave=null;
-			pictureTable_Resize(null,null);
-		}
 
 		private void buttonSaveGame_Click(object sender,EventArgs e) {
 			string gameName=textGameName.Text;
@@ -428,6 +393,10 @@ namespace SuDoku {
 				string rowLine=gameTable.ExtractLine(gameIndex);
 				gameTable.FillTableRow(yy,(rowLine[0]=='*')?"":rowLine);
 			}
+		}
+
+		private void buttonCancel_Click(object sender,EventArgs e) {
+			cancelFlag=true;
 		}
 	}
 }

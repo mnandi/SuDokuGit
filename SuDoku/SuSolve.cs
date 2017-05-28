@@ -20,16 +20,12 @@ namespace SuDoku {
 		TESTRESULTS
 	};
 	enum sresult {
-		SOLVE_MORE=-9,		//	-9	"More then one solution"
-		SOLVE_NOMEM1,		//		"No enough memory space"
-		SOLVE_UNPOSSIBLE,	//		"Lehetetlen megoldás"
-		SOLVE_NOMEM2,		//		"No enough memory space"
-		SOLVE_FILE,			//		"Wrong file parameter"
-		SOLVE_PARAM,		//		"Wrong game parameter"
-		SOLVE_TABLE,		//		"Not enough game lines"
-		SOLVE_DATA,			//		"Data error"
+		SOLVE_CANCELLED=-3,
+		SOLVE_IMPOSSIBLE=-2,//		"Lehetetlen megoldás"
 		SOLVE_OK=-1,		//	-1	"Jó megoldás !"
 		SOLVE_NORESULT=0,	//	 0	"Hiba, nincs megoldás"
+		SOLVE_ONERESULT,
+		SOLVE_MORERESULT=15,
 							//	>0	"A megoldások száma"
 	};
 	enum PHASE {
@@ -68,8 +64,9 @@ namespace SuDoku {
 		//	0 1 2 3 4 5 6 7 8 9 a b c d e f
 		};
 
-		static int level=0;						//	Solving (iteration) level
-		static int trynb=0;						//	Nbr of effective trying
+		static int level=0;			//	Solving (iteration) level
+		static int trynb=0;			//	Nbr of effective trying
+		static int maxlev=0;		//	Maximal queue level
 
 		sresult SuSolve(solvetype type) {
 			//******************************************************
@@ -82,10 +79,15 @@ namespace SuDoku {
 			//		=0	- Solution found
 			//		>0	- More than one solution exist
 			int nbresults=0;
+			TableQueue resultList=new TableQueue();
 			trynb=0;
+			maxlev=0;
+			cancelFlag=false;
 			//	Solving table
 			while(true) {
-Recount:		int ret=SolveAll();
+Recount: if(cancelFlag)
+					return sresult.SOLVE_CANCELLED;
+				int ret=SolveAll();
 				//	ret	<0 - no solution
 				//		=0 - no new fixed value
 				//		>0 - new fixed value found
@@ -93,48 +95,50 @@ BackTry:		if(ret>=0) {
 					//	Ellenõrizni hogy vége-e, vagy tovább kell számolni
 					//if(EndTest()!=0) {
 						//	=1 - all cells are fixed
-					//int etret=EndTest();
-					int gret=gameTable.EndTest();
-					if(gret<0) {
+					int eret=gameTable.EndTest();
+					if(eret<0) {
 						//	>=0 - there are fixable cells
 						//	=-1 - all cells are fixed
 						if(type==(int)solvetype.TESTRESULTS) {
-							//	task: count solutions
-							////                    SUTAB* tmptab;
+						////    SUTAB* tmptab;
+						////    if(nbresults==0) {
+						////        while(pretab!=NULL) {
+						////            tmptab=pretab->prevtab;
+						////            free(pretab);
+						////            pretab=tmptab;
+						////        }
+						////        nbresults++;
+						////        pretab=(SUTAB*)malloc(sizeof(SUTAB));
+						////        memcpy(pretab,psutab,sizeof(SUTAB));
+						////        pretab->prevtab=NULL;
+						////        if(psutab->prevtab==NULL) {
+						////            //	No empty cell in game table
+						////            break;
+						////        }
+						////        goto BackStep;
+						////    } else {
+						////        nbresults++;
+						////        tmptab=pretab;
+						////        pretab=(SUTAB*)malloc(sizeof(SUTAB));
+						////        memcpy(pretab,psutab,sizeof(SUTAB));
+						////        pretab->prevtab=tmptab;
+						////        goto BackStep;
+						////        //	return SOLVE_MORE;
+						////    }
+						////}
 							if(nbresults==0) {
-								//	this is the first solution
-								////	while(pretab!=NULL){
-								////		tmptab=pretab->prevtab;
-								////		free(pretab);
-								////		pretab=tmptab;
-								////	}
-								//?while(tableQueue.Size>0) {
-								//?	gameTable=tableQueue.Pop();
-								//?	GameCell cell=gameTable.cell(gameTable.x,gameTable.y);
-								//?}
-								nbresults++;
-								////	pretab=(SUTAB*)malloc(sizeof(SUTAB));
-								////	memcpy(pretab,psutab,sizeof(SUTAB));
-								////	pretab->prevtab=NULL;
-								//?tableQueue.Push(gameTable);
-								////					if(gameTable.prevtab==NULL){
-								//? if(tableQueue.Size==0) {
-								//?	//	No empty cell in game table
-								//?	break;
-								//? }
-								ret=-1;
-								goto BackTry;
-							} else {
-								nbresults++;
-								////	tmptab=pretab;
-								////	pretab=(SUTAB*)malloc(sizeof(SUTAB));
-								////	memcpy(pretab,psutab,sizeof(SUTAB));
-								////	pretab->prevtab=tmptab;
-								//? tableQueue.Push(gameTable);
-								ret=-1;
-								goto BackTry;
-								//return sresult.SOLVE_MORE;
+								int qSize=tableQueue.gameTableList.Count;
+								if(qSize==0) {
+									nbresults++;
+									break;
+								}
 							}
+#if DEBUG
+#endif
+							nbresults++;
+							resultList.Push(gameTable);
+							ret=-1;
+							goto BackTry;
 						} else {
 							//	task: found solution
 							//	step out from loop and return by OK
@@ -159,13 +163,13 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 						//	Itt a vége, nincs megoldás
 						switch(nbresults) {
 							case 0:
-								return SolveExit(sresult.SOLVE_NORESULT,"Hiba, nincs megoldás");
+								return sresult.SOLVE_NORESULT;
 							default:
-								if(nbresults<5)
+								if(nbresults<(int)sresult.SOLVE_MORERESULT)
 									//if(gameTable.prevtab!=NULL)
 									if(tableQueue.Size>0)
 										goto BackStep;
-								return (sresult)nbresults;
+								return (sresult)(Math.Min(nbresults,(int)sresult.SOLVE_MORERESULT));
 						}
 					}
 				}
@@ -185,19 +189,19 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 				//	Beállítani a próbát
 				if(SetTryNum()<=0) {
 					//	Lehetetlen
-					return SolveExit(sresult.SOLVE_UNPOSSIBLE,"Lehetetlen megoldás");
+					return sresult.SOLVE_IMPOSSIBLE;
 				}
 
-				//SUTAB* wsutab;
-				//if((wsutab=(SUTAB*)malloc(sizeof(SUTAB)))==NULL){
-				//    return SolveExit(sresult.SOLVE_NOMEM2,"No enough memory space");
-				//}
 				++level;
 				textActLevel.Text=level.ToString();
 				textActLevel.Refresh();
+				maxlev=Math.Max(maxlev,level);
+				textMaxLevel.Text=maxlev.ToString();
+				textMaxLevel.Refresh();
 				trynb++;
 				textTryNb.Text=trynb.ToString();
 				textTryNb.Refresh();
+				//SUTAB* wsutab=(SUTAB*)malloc(sizeof(SUTAB));
 				//memcpy(wsutab,psutab,sizeof(SUTAB));
 				//wsutab->prevtab=psutab;
 				//psutab=wsutab;
@@ -207,25 +211,8 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 				gameTable.tnb=0;
 				gameTable.level=level;
 			}
-
-			return sresult.SOLVE_OK;	//	SolveExit(SOLVE_OK,"Jó megoldás !");
+			return sresult.SOLVE_OK;	//	"Jó megoldás !"
 		}
-
-//        //******************************************************
-//        //	Tests the program end
-//        //******************************************************
-//        int EndTest() {
-//            //	returns: 0 - there are fixable cells
-//            //			 1 - all cells are fixed
-//            for(int xx=gameTable.boardsize; (xx--)>0; ) {
-//#if DEBUG
-//                GameCell cell=gameTable.cell(xx);
-//#endif
-//                if(gameTable.cell(xx).fixbitnum==0)
-//                    return 0;
-//            }
-//            return 1;
-//        }
 
 		//======================================================
 		//	Searches the next tryable cell
@@ -248,14 +235,14 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 						continue;	//	no possible value
 					if(gameTable.cell(ix,iy).tried==1)
 						continue;	//	cell was tried
-					int cannb=CountBits(val);
+					int cannotnb=CountBits(val);
 					//	mis= 0,1 - impossible
 					//		 2	 - can try 2 cases
-					if(xpos[cannb]<0) {	//	Store the indices of 1st other cases
-						ypos[cannb]=iy;
-						xpos[cannb]=ix;
+					if(xpos[cannotnb]<0) {	//	Store the indices of 1st other cases
+						ypos[cannotnb]=iy;
+						xpos[cannotnb]=ix;
 					}
-					if(cannb==(gameTable.tabSize-2))
+					if(cannotnb==(gameTable.tabSize-2))
 						goto EndSearch;	//	Go to trying if only 2 cases possible
 				}
 			}
@@ -263,11 +250,12 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 EndSearch:	//	Searches the 1st best case
 			for(int iz=0; iz<=gameTable.tabSize; iz++) {
 				if(xpos[iz]>=0) {
-					gameTable.y=ypos[iz];
-					gameTable.x=xpos[iz];
+					int yy=gameTable.y=ypos[iz];
+					int xx=gameTable.x=xpos[iz];
 					//int cellx=GetTableX(gameTable.x,gameTable.y);
-					gameTable.cell(gameTable.x,gameTable.y).tried=1;
+					gameTable.cell(xx,yy).tried=1;
 					break;
+					//?return;
 				}
 			}
 		}
@@ -280,7 +268,6 @@ EndSearch:	//	Searches the 1st best case
 			//			 1 - table is inconsistent,  unresolvable
 			int ix,iy,flg=0;
 			int val;
-			int selnb=0;         //   Nbr of selected cells
 			for(iy=gameTable.tabSize; (iy--)>0; ) {
 				for(ix=gameTable.tabSize; (ix--)>0; ) {
 					//int cellx=GetTableX(ix,iy);	///	iy*susize+ix;
@@ -292,7 +279,6 @@ EndSearch:	//	Searches the 1st best case
 						if((gameTable.cell(ix,iy).orig==0)||(gameState==false)) {
 							gameTable.cell(ix,iy).selected=1;
 							gameTable.cell(ix,iy).imposs=1;
-							selnb+=1;
 							//?RedrawCell(ix,iy);
 						}
 						flg=1;
@@ -496,44 +482,13 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 				int sunum=NumToBit(iz);
 				if((val&sunum)!=0) {
 					//int cellx=GetTableX(x,y);	///y*susize+x;
-					gameTable.cell(x,y).cannum&=~sunum;
-					gameTable.cell(x,y).fixNum=BitToNum(sunum);
+					gameTable.cell(x,y).cannum&=~sunum;			//	remove bit of num to possible value list
+					//gameTable.cell(x,y).fixNum=BitToNum(sunum);
+					gameTable.cell(x,y).fixNum=iz;
 					break;
 				}
 			}
 			return ++trynb;
-		}
-
-		//------------------------------------------------------
-		//	Búcsú üzenet kiírása
-		//------------------------------------------------------
-		sresult SolveExit(sresult ret,string msg) {
-			//SUTAB* wsutab;
-			//SUTAB* ssutab;
-			//    ASSERT(psutab!=NULL);
-			//    ssutab=psutab;
-			//    psutab=ssutab->prevtab;
-			//    if(psutab!=NULL){
-			//        while((wsutab=psutab->prevtab)!=NULL){
-			//            free(psutab);
-			//            psutab=wsutab;
-			//        }
-			//    }
-			//    free(psutab);
-			//    psutab=ssutab;
-			//    psutab->prevtab=NULL;
-			while(tableQueue.Size>0) {
-				gameTable=tableQueue.Pop();
-			}
-			//    psutab->level=
-			//    psutab->tnb=0;
-			//    psutab->x=
-			//    psutab->y=-1;
-			gameTable.level=
-			gameTable.tnb=0;
-			gameTable.x=
-			gameTable.y=-1;
-			return ret;
 		}
 
 		//------------------------------------------------------

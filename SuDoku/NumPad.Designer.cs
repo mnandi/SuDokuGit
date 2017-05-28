@@ -41,6 +41,7 @@
 			this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
 			this.Text = "NumPad";
 			this.TopMost = true;
+			this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NumPad_KeyPress);
 			this.ResumeLayout(false);
 
 		}

@@ -27,6 +27,12 @@
 			this.panelTiles = new System.Windows.Forms.Panel();
 			this.pictureTable = new System.Windows.Forms.PictureBox();
 			this.panelControl = new System.Windows.Forms.Panel();
+			this.textTryNb = new System.Windows.Forms.TextBox();
+			this.label7 = new System.Windows.Forms.Label();
+			this.label6 = new System.Windows.Forms.Label();
+			this.textActLevel = new System.Windows.Forms.TextBox();
+			this.label5 = new System.Windows.Forms.Label();
+			this.textGameName = new System.Windows.Forms.TextBox();
 			this.buttonResolveTable = new System.Windows.Forms.Button();
 			this.buttonCheckResolving = new System.Windows.Forms.Button();
 			this.buttonSaveGame = new System.Windows.Forms.Button();
@@ -46,12 +52,8 @@
 			this.buttonExit = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.comboGameType = new System.Windows.Forms.ComboBox();
-			this.textGameName = new System.Windows.Forms.TextBox();
-			this.label5 = new System.Windows.Forms.Label();
-			this.textActLevel = new System.Windows.Forms.TextBox();
-			this.label6 = new System.Windows.Forms.Label();
-			this.label7 = new System.Windows.Forms.Label();
-			this.textTryNb = new System.Windows.Forms.TextBox();
+			this.textMaxLevel = new System.Windows.Forms.TextBox();
+			this.buttonCancel = new System.Windows.Forms.Button();
 			this.panelTiles.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureTable)).BeginInit();
 			this.panelControl.SuspendLayout();
@@ -87,6 +89,8 @@
 			// 
 			this.panelControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.panelControl.Controls.Add(this.buttonCancel);
+			this.panelControl.Controls.Add(this.textMaxLevel);
 			this.panelControl.Controls.Add(this.textTryNb);
 			this.panelControl.Controls.Add(this.label7);
 			this.panelControl.Controls.Add(this.label6);
@@ -116,6 +120,54 @@
 			this.panelControl.Name = "panelControl";
 			this.panelControl.Size = new System.Drawing.Size(300, 555);
 			this.panelControl.TabIndex = 1;
+			// 
+			// textTryNb
+			// 
+			this.textTryNb.Location = new System.Drawing.Point(96, 518);
+			this.textTryNb.Name = "textTryNb";
+			this.textTryNb.Size = new System.Drawing.Size(57, 22);
+			this.textTryNb.TabIndex = 24;
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.Location = new System.Drawing.Point(93, 501);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(40, 17);
+			this.label7.TabIndex = 23;
+			this.label7.Text = "Trys:";
+			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Location = new System.Drawing.Point(9, 501);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(75, 17);
+			this.label6.TabIndex = 22;
+			this.label6.Text = "Level: Max";
+			// 
+			// textActLevel
+			// 
+			this.textActLevel.Location = new System.Drawing.Point(11, 518);
+			this.textActLevel.Name = "textActLevel";
+			this.textActLevel.Size = new System.Drawing.Size(36, 22);
+			this.textActLevel.TabIndex = 21;
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Location = new System.Drawing.Point(9, 64);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(77, 17);
+			this.label5.TabIndex = 20;
+			this.label5.Text = "Játék neve";
+			// 
+			// textGameName
+			// 
+			this.textGameName.Location = new System.Drawing.Point(12, 85);
+			this.textGameName.Name = "textGameName";
+			this.textGameName.Size = new System.Drawing.Size(79, 22);
+			this.textGameName.TabIndex = 19;
 			// 
 			// buttonResolveTable
 			// 
@@ -320,53 +372,23 @@
 			this.comboGameType.TabIndex = 6;
 			this.comboGameType.SelectedIndexChanged += new System.EventHandler(this.comboGameType_SelectedIndexChanged);
 			// 
-			// textGameName
+			// textMaxLevel
 			// 
-			this.textGameName.Location = new System.Drawing.Point(12, 85);
-			this.textGameName.Name = "textGameName";
-			this.textGameName.Size = new System.Drawing.Size(79, 22);
-			this.textGameName.TabIndex = 19;
+			this.textMaxLevel.Location = new System.Drawing.Point(51, 518);
+			this.textMaxLevel.Name = "textMaxLevel";
+			this.textMaxLevel.Size = new System.Drawing.Size(36, 22);
+			this.textMaxLevel.TabIndex = 25;
 			// 
-			// label5
+			// buttonCancel
 			// 
-			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(9, 64);
-			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(77, 17);
-			this.label5.TabIndex = 20;
-			this.label5.Text = "Játék neve";
-			// 
-			// textActLevel
-			// 
-			this.textActLevel.Location = new System.Drawing.Point(11, 518);
-			this.textActLevel.Name = "textActLevel";
-			this.textActLevel.Size = new System.Drawing.Size(60, 22);
-			this.textActLevel.TabIndex = 21;
-			// 
-			// label6
-			// 
-			this.label6.AutoSize = true;
-			this.label6.Location = new System.Drawing.Point(9, 501);
-			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(46, 17);
-			this.label6.TabIndex = 22;
-			this.label6.Text = "Level:";
-			// 
-			// label7
-			// 
-			this.label7.AutoSize = true;
-			this.label7.Location = new System.Drawing.Point(93, 501);
-			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(40, 17);
-			this.label7.TabIndex = 23;
-			this.label7.Text = "Trys:";
-			// 
-			// textTryNb
-			// 
-			this.textTryNb.Location = new System.Drawing.Point(81, 518);
-			this.textTryNb.Name = "textTryNb";
-			this.textTryNb.Size = new System.Drawing.Size(72, 22);
-			this.textTryNb.TabIndex = 24;
+			this.buttonCancel.BackColor = System.Drawing.Color.Red;
+			this.buttonCancel.Location = new System.Drawing.Point(152, 249);
+			this.buttonCancel.Name = "buttonCancel";
+			this.buttonCancel.Size = new System.Drawing.Size(135, 30);
+			this.buttonCancel.TabIndex = 26;
+			this.buttonCancel.Text = "Megoldás leállítás";
+			this.buttonCancel.UseVisualStyleBackColor = false;
+			this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
 			// 
 			// SuDokuForm
 			// 
@@ -419,6 +441,8 @@
 		private System.Windows.Forms.TextBox textActLevel;
 		private System.Windows.Forms.TextBox textTryNb;
 		private System.Windows.Forms.Label label7;
+		private System.Windows.Forms.TextBox textMaxLevel;
+		private System.Windows.Forms.Button buttonCancel;
 	}
 }
 

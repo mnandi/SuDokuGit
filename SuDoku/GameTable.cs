@@ -16,15 +16,18 @@ namespace SuDoku {
         public int	tried;		//1;   //   cell with a tried number
         public int	orig=0;		//1;   //   cell with original input number
 
-		public int cellX;			//	cell X coord
-		public int cellY;			//	cell Y coord
+		int cX;			//	cell X coord
+		int cY;			//	cell Y coord
+
 		public int fixNum=0;		//	cell value: -1=empty, 0-not used, 1-n
 		public int fixbitnum { get { return (fixNum<=0)?0:1<<(fixNum-1); } }
 		public GameCell(int x,int y) {
-			cellX=x;
-			cellY=y;
+			cX=x;
+			cY=y;
 		}
-		public Point coords { get { return new Point(cellX,cellY); } }
+		public int cellX { get { return cX; } }
+		public int cellY { get { return cY; } }
+		public Point coords { get { return new Point(cX,cY); } }
 		public object Clone() {
 			return this.MemberwiseClone();
 		}
@@ -40,24 +43,27 @@ namespace SuDoku {
 		public int y=-1;			//	last tryed cell y coord
 		public int tnb;				//	number of attempts
 
-		int numbitmask;
+		int nummask;
+		int tabsiz;
 		public int diagFlag;
 
 		public int xCells;			//	cell x position in table
 		public int yCells;			//	cell y position in table
 		List<GameCell> cellList;	//	table of game cells
-		public int tabSize { get { return xCells*yCells; } }
-		public int boardsize { get { return xCells*yCells*xCells*yCells; } }
+		public int numbitmask { get { return nummask; } }
+		public int tabSize { get { return tabsiz; } }
+		public int boardsize { get { return tabsiz*tabsiz; } }
 		public GameTable(int nx,int ny) {
 			InitTable(nx,ny);
 		}
 		public void InitTable(int nx,int ny){
 			xCells=nx;
 			yCells=ny;
-			numbitmask=(1<<(nx*ny))-1;
+			tabsiz=nx*ny;
+			nummask=(1<<tabsiz)-1;
 			cellList=new List<GameCell>();
-			for(int yy=0;yy<tabSize;yy++){
-				for(int xx=0; xx<tabSize; xx++) {
+			for(int yy=0;yy<tabsiz;yy++){
+				for(int xx=0; xx<tabsiz; xx++) {
 					cellList.Add(new GameCell(xx,yy));
 				}
 			}
@@ -70,7 +76,11 @@ namespace SuDoku {
 		public GameCell cell(Point pt) { return cellList[pt.Y*tabSize+pt.X]; }
 
 		public int EndTest() {
+#if DEBUG
+			return cellList.FindLastIndex(x => x.fixbitnum==0);
+#else
 			return cellList.FindIndex(x => x.fixbitnum==0);
+#endif
 		}
 
 		#region	Table handling (fill/load/clear) routines
@@ -128,9 +138,7 @@ namespace SuDoku {
 		//======================================================================
 		//	Clearing all select and impossible bits on board
 		//======================================================================
-		public void ClearSelects(ref int selnb) {
-			//if(selnb==0)
-			//	return;
+		public void ClearSelects() {
 			for(int xx=boardsize;(xx--)>0;){
 				//if(psutab->sudoku[xx].selected==1){
 				//	psutab->sudoku[xx].selected=0;
@@ -150,7 +158,6 @@ namespace SuDoku {
 				}
 
 			}
-			selnb=0;
 		}
 		#endregion
 

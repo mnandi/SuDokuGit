@@ -9,6 +9,8 @@ using System.Windows.Forms;
 
 namespace SuDoku {
 	public partial class NumPad: Form {
+		static int bas;
+		static int siz;
 		GameCell cell;
 		public int numMask=0;
 		public int numButton=-1;
@@ -18,6 +20,8 @@ namespace SuDoku {
 			InitializeComponent();
 
 			cell=cll;
+			siz=def.xCells*def.yCells;
+			bas=(siz>9)?Constants.chrBase:Constants.numBase;	//	show '1' if table <= 3x3 else 'A'
 
 			CellResult rerr=SuDokuForm.gameTable.CountCellFlag(cell);
 			int nC=Math.Max(def.xCells,def.yCells);
@@ -41,6 +45,7 @@ namespace SuDoku {
 							butt.Enabled=false;
 					}
 					butt.Click+=new System.EventHandler(this.button_Click);
+					butt.KeyPress+=new KeyPressEventHandler(this.NumPad_KeyPress);
 					butt.DialogResult=DialogResult.OK;
 					this.Controls.Add(butt);
 				}
@@ -78,6 +83,36 @@ namespace SuDoku {
 					break;
 			}
 			CellResult rerr=SuDokuForm.gameTable.CountCellFlag(cell);
+		}
+
+		private void NumPad_KeyPress(object sender,KeyPressEventArgs e) {
+			int chrnum=e.KeyChar;
+			int num,mask;
+			numButton=0;
+			numMask=0;
+			if(chrnum==0x1B){
+				//	Escape
+				numMask=-1;
+			} else if(chrnum==' '){
+			} else {
+				if(siz>9) {
+					chrnum&=0xDF;
+					if((chrnum>='A')&&(chrnum<('A'+siz))) {
+						numButton=chrnum-0x40;
+						numMask=(1<<(numButton-1));
+					} else {
+						return;
+					}
+				} else {
+					if((chrnum>='1')&&(chrnum<('1'+siz))) {
+						numButton=chrnum-0x30;
+						numMask=(1<<(numButton-1));
+					} else {
+						return;
+					}
+				}
+			}
+			this.Close();
 		}
 	}
 }
