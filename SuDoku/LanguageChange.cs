@@ -13,13 +13,22 @@ using System.Windows.Forms;
 namespace SuDoku {
 	public class LanguageChange {
 		private CultureInfo mCI=null;
+		private System.Resources.ResourceManager rm=null;
 
 		public void ChangeLanguage(string language) {
-			mCI=new CultureInfo(language);
+			try {
+				mCI=new CultureInfo(language);
+			} catch {
+			}
 			Thread.CurrentThread.CurrentCulture=mCI;
 			Thread.CurrentThread.CurrentUICulture=mCI;
+			rm=new System.Resources.ResourceManager("SuDoku.Resource",Assembly.GetExecutingAssembly());
 		}
 
+		public string GetLocalString(string key) {
+			return rm.GetString(key,mCI);
+
+		}
 		public void ApplyLanguageToForm(Form inputForm) {
 			Form mainForm=inputForm;
 			while(mainForm.Owner!=null) {

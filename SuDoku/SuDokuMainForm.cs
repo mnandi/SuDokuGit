@@ -1,4 +1,8 @@
 ﻿#region Source File Description
+/*
+ * Localization:
+ *		https://support.microsoft.com/en-us/kb/319292#toc
+*/
 #endregion
 #region References
 using System;
@@ -17,9 +21,8 @@ using System.Globalization;		//	language
 using System.Reflection;
 using System.Resources;
 using System.Threading;
-#endregion
 
-using Properties;
+#endregion
 
 namespace SuDoku {
 	delegate void ShowTimerDelegate();
@@ -55,16 +58,24 @@ namespace SuDoku {
 		static int baseX=0;			//	game table left position
 		static int baseY=0;			//	game table top  position
 		static int cellSize;		//	Cell size in pixels
+		static LanguageChange chlang=null;
 		#endregion
 		#region Game initialization & playing
 		public SuDokuForm() {
 
 			InitializeComponent();
 
-			LanguageChange chlang=new LanguageChange();
-			chlang.ChangeLanguage("hu-HU");
-			//chlang.ChangeLanguage("en");
+			Assembly assembly=Assembly.GetExecutingAssembly();
+			foreach(string s in assembly.GetManifestResourceNames()) {
+				string xx=s;
+			}
+
+			chlang=new LanguageChange();
+			//chlang.ChangeLanguage("hu-HU");
+			chlang.ChangeLanguage("en");
 			chlang.ApplyLanguageToForm(this);
+
+			string lstr=chlang.GetLocalString("MB_caption_err");
 
 			//	Init game comboBox
 			for(int ii=0; ii<Constants.gameDefTb.Length; ii++) {
@@ -153,32 +164,50 @@ namespace SuDoku {
 			//		-1	- no solution
 			//		 0	- solved
 			//		>0	- other solve error
+			string msgid;
+			string msgtype;
 			switch(sret) {
 				case sresult.SOLVE_FEWDATA:
-					MessageBox.Show("A tábla nincs megfelelően kitöltve\r\nTúl kevés kitöltött cellát tartalmaz!","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
+					msgid=chlang.GetLocalString("MB_msg_errfill");
+					msgtype=chlang.GetLocalString("MB_caption_err");
+					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Error);
 					break;
 				case sresult.SOLVE_IMPOSSIBLE:	//		"Lehetetlen megoldás"
-					MessageBox.Show("A tábla nem megoldható","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
+					msgid=chlang.GetLocalString("MB_msg_NOresult");
+					msgtype=chlang.GetLocalString("MB_caption_err");
+					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Error);
 					break;
 				case sresult.SOLVE_CANCELLED:
-					MessageBox.Show("A művelet leállítva","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
+					msgid=chlang.GetLocalString("MB_msg_stopped");
+					msgtype=chlang.GetLocalString("MB_caption_err");
+					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Error);
 					break;
 				case sresult.SOLVE_OK:			//	-1	"Jó megoldás !"
 					//	Returns:
 					pictureTable_Resize(null,null);
-					MessageBox.Show("A tábla megoldása\r\nBefejezem","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+					msgid=chlang.GetLocalString("MB_msg_result");
+					msgtype=chlang.GetLocalString("MB_caption_result");
+					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
 				case sresult.SOLVE_NORESULT:	//	 0	"Hiba, nincs megoldás"
-					MessageBox.Show("A tábla nem oldható meg","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
+					msgid=chlang.GetLocalString("MB_msg_NOresult");
+					msgtype=chlang.GetLocalString("MB_caption_err");
+					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Error);
 					break;
 				case sresult.SOLVE_ONERESULT:	//	1	"1 megoldás"
-					MessageBox.Show("Egy megoldás van!","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+					msgid=chlang.GetLocalString("MB_msg_1result");
+					msgtype=chlang.GetLocalString("MB_caption_result");
+					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
 				case sresult.SOLVE_MORERESULT:	//	>1	"Több megoldás"
-					MessageBox.Show(string.Format("Több, legalább {0} megoldás is van!",(int)sret),"Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+					msgid=chlang.GetLocalString(string.Format("MB_msg_MANYresult",(int)sret));
+					msgtype=chlang.GetLocalString("MB_caption_result");
+					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
 				default:						//	>2	"Több megoldás"
-					MessageBox.Show(string.Format("Több, {0} megoldás is van!",(int)sret),"Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+					msgid=chlang.GetLocalString(string.Format("MB_msg_MANYresult",(int)sret));
+					msgtype=chlang.GetLocalString("MB_caption_result");
+					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
 			}
 			gameTable=gameTableSave;
@@ -372,7 +401,7 @@ namespace SuDoku {
 		//======================================
 		//	Save file handling
 		//======================================
-		//	Saving catual game
+		//	Saving actual game
 		private void buttonSaveGame_Click(object sender,EventArgs e) {
 			if(gameState<0) {		//	0=not playing / 1=playing / -1-play stopped
 				//	here stopped - restart playing
@@ -387,7 +416,7 @@ namespace SuDoku {
 				string gameName=textGameName.Text;
 				if(string.IsNullOrWhiteSpace(gameName)) {
 					//!MessageBox.Show("A játék nevet ki kell tölteni!","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
-					MessageBox.Show("A játék nevet ki kell tölteni!",Resources.MB_caption_err,MessageBoxButtons.OK,MessageBoxIcon.Error);
+					MessageBox.Show("A játék nevet ki kell tölteni!",Properties.Resources.MB_caption_err,MessageBoxButtons.OK,MessageBoxIcon.Error);
 					return;
 				}
 				int gameIndex=GameFile.GetGameIndex(gameName);

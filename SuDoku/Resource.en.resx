@@ -132,6 +132,9 @@
   <data name="MB_msg_1result" xml:space="preserve">
     <value>Only one result exsist!</value>
   </data>
+  <data name="MB_msg_errfill" xml:space="preserve">
+    <value>Insufficient table filling</value>
+  </data>
   <data name="MB_msg_MANYresult" xml:space="preserve">
     <value>At least {0} result exists!</value>
   </data>
@@ -139,6 +142,10 @@
     <value>No sulution od this table</value>
   </data>
   <data name="MB_msg_result" xml:space="preserve">
-    <value>This is the solution\r\nI will close the play</value>
+    <value>This is the solution
+I will close the play</value>
+  </data>
+  <data name="MB_msg_stopped" xml:space="preserve">
+    <value>Operation stopped</value>
   </data>
 </root>
