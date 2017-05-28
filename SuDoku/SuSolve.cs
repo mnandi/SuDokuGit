@@ -35,6 +35,10 @@ namespace SuDoku {
 		PHcreate=0,	//	Create	game
 		PHplay		//	Play	game
 	};
+	public class CellResult {
+		public int cellnums=0;
+		public List<int[]> errList=new List<int[]>();
+	}
 	public partial class SuDokuForm {
 		static readonly byte[] defnumnb={		//	Number of number list
 		//	0 1 2 3 4 5 6 7 8 9 a b c d e f
@@ -225,7 +229,7 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 					//int cellx=GetTableX(ix,iy);	///	iy*susize+ix;
 					int val=gameTable.cell(ix,iy).cannum;
 					if(val==0)
-						continue;	//	no possibkle value
+						continue;	//	no possible value
 					if(gameTable.cell(ix,iy).tried==1)
 						continue;	//	cell was tried
 					int cannb=CountBits(val);
@@ -266,7 +270,7 @@ EndSearch:	//	Searches the 1st best case
 					//int cellx=GetTableX(ix,iy);	///	iy*susize+ix;
 					if((gameTable.cell(ix,iy).fixnum)==0)
 						continue;	//	Empty input item
-					val=CountOne(ix,iy);	//	val: Impossibles in ix,iy
+					val=gameTable.CountOne(ix,iy);	//	val: Impossibles in ix,iy
 					if((val&gameTable.cell(ix,iy).fixnum)!=0) {
 						//if((gameTable.cell(ix,iy).orig==0)||(phase==(int)PHASE.PHcreate)) {
 						if((gameTable.cell(ix,iy).orig==0)||(gameState==false)) {
@@ -316,7 +320,7 @@ EndSearch:	//	Searches the 1st best case
 			//			 0	- no new fixed value
 			//			 1	- fixes a number
 
-			int val=CountOne(x,y);	//	val: Impossibles in iy,ix
+			int val=gameTable.CountOne(x,y);	//	val: Impossibles in iy,ix
 			int lst;
 			//int	cellx=GetTableX(x,y);	///	y*susize+x;
 			if((val&gameTable.cell(x,y).fixnum)!=0) {
@@ -327,8 +331,7 @@ EndSearch:	//	Searches the 1st best case
 				case 0:		//	Wrong table (no possible value for cell)
 					return -1;
 				case 1:		//	Only one possible number exist
-OnlyOne:
-					gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
+OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 					gameTable.cell(x,y).cannum=0;
 					return 1;	//	fixed a new number
 				default:	//	Set the cell possible values
@@ -348,90 +351,11 @@ OnlyOne:
 		}
 
 		//------------------------------------------------------
-		//	Count forbidden values for a cell
-		//------------------------------------------------------
-		int CountOne(int indx) {
-			//		returns: the bitflag of a cell impossible values
-			//					by the collection of bit of numbers cell x,y
-			//					on row, column, block and optionally diagonals
-
-			int x,y;
-			x=indx%gameTable.tabSize;
-			y=indx/gameTable.tabSize;
-			return CountOne(x,y);
-		}
-
-		//------------------------------------------------------
-		//	Count forbidden values for a cell
-		//------------------------------------------------------
-		int CountOne(int x,int y) {
-			//		returns: the bitflag of a cell impossible values
-			//					by the collection of bit of numbers cell x,y
-			//					on row, column, block and optionally diagonals
-			int val=0;
-			int ix,iy;
-			//int y0=y/susizey*susizey;
-			//int x0=x/susizex*susizexs;
-			int y0=y/actGameDef.yCells*actGameDef.yCells;
-			int x0=x/actGameDef.xCells*actGameDef.xCells;
-			//	Collects bits of column
-			ix=x;
-			for(iy=gameTable.tabSize; (iy--)>0; ) {
-				if(iy==y)
-					continue;			//	Skip at actual cell
-				//int cellx=GetTableX(ix,iy);
-				val|=gameTable.cell(ix,iy).fixnum;
-			}
-			//	Collects bits of row
-			iy=y;
-			for(ix=gameTable.tabSize; (ix--)>0; ) {
-				if(ix==x)
-					continue;			//	Skip at actual cell
-				//int cellx=GetTableX(ix,iy);
-				val|=gameTable.cell(ix,iy).fixnum;
-			}
-			//	Collects bits of block
-			for(iy=y0+actGameDef.yCells; (iy--)>y0; ) {
-				for(ix=x0+actGameDef.xCells; (ix--)>x0; ) {
-					if((iy==y)&&(ix==x))
-						continue;		//	Skip at actual cell
-					//int cellx=GetTableX(ix,iy);
-					val|=gameTable.cell(ix,iy).fixnum;
-				}
-			}
-			//	If diagonals are observed
-			//if(diagfl==DIAGGAME){
-			if(actGameDef.xCross==(int)GameType.DIAGGAME) {
-				if(x==y) {
-					//	Collects bits of top-down diagonal
-					for(ix=gameTable.tabSize; (ix--)>0; ) {
-						if(ix==x)
-							continue;	//	Skip at actual cell
-						iy=ix;
-						//int cellx=GetTableX(ix,iy);
-						val|=gameTable.cell(ix,iy).fixnum;
-					}
-				}
-				if((x+y+1)==gameTable.tabSize) {
-					//	Collects bits of bottom-up diagonal
-					for(ix=gameTable.tabSize; (ix--)>0; ) {
-						if(ix==x)
-							continue;	//	Skip at actual cell
-						iy=gameTable.tabSize-ix-1;
-						//int cellx=GetTableX(ix,iy);
-						val|=gameTable.cell(ix,iy).fixnum;
-					}
-				}
-			}
-			return val&actGameDef.sumask;
-		}
-
-		//------------------------------------------------------
 		//	Count possible values in a cell
 		//------------------------------------------------------
 		int CheckOne(int x,int y) {
 			//	returns: the nbr of possible valuex in cell x,y
-			int val=CountOne(x,y);		//	val: Impossibles in iy,ix
+			int val=gameTable.CountOne(x,y);		//	val: Impossibles in iy,ix
 			int fix=TestList(x,y,0);	//
 			if((val&fix)!=0)
 				return actGameDef.sumask;

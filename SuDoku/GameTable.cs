@@ -41,24 +41,28 @@ namespace SuDoku {
 		public int y=-1;			//	last tryed cell y coord
 		public int tnb;				//	number of attempts
 
+		int numbitmask;
+		public int diagFlag;
+
 		public int xCells;			//	cell x position in table
 		public int yCells;			//	cell y position in table
 		List<GameCell> cellList;	//	table of game cells
 		public int tabSize { get { return xCells*yCells; } }
 		public int boardsize { get { return xCells*yCells*xCells*yCells; } }
-		public GameTable(int x,int y) {
-			InitTable(x,y);
+		public GameTable(int nx,int ny) {
+			InitTable(nx,ny);
 		}
-		public void InitTable(int x,int y){
-			xCells=x;
-			yCells=y;
-			x=y=-1;
+		public void InitTable(int nx,int ny){
+			xCells=nx;
+			yCells=ny;
+			numbitmask=(1<<(nx*ny))-1;
 			cellList=new List<GameCell>();
 			for(int yy=0;yy<tabSize;yy++){
 				for(int xx=0; xx<tabSize; xx++) {
 					cellList.Add(new GameCell(xx,yy));
 				}
 			}
+			x=y=-1;
 		}
 		public int CoordToIndex(Point coord) { return coord.Y*tabSize+coord.X; }
 		public Point IndexToCoord(int index) { return new Point(index%tabSize,index/tabSize); }
@@ -132,13 +136,126 @@ namespace SuDoku {
 		public int CheckTable() {
 			int errs=0;
 			for(int ii=0; ii<cellList.Count; ii++) {
-				List<int[]> err=GameCheck.CheckValues(cellList[ii]);
-				if(err.Count>0)
+				CellResult rerr=CountOne(cellList[ii]);
+				if(rerr.errList.Count>0)
 					errs++;
 			}
 			return errs;
 		}
-		public T DeepClone<T>(T obj) where T : class {
+
+		//------------------------------------------------------
+		//	Count forbidden values for a cell
+		//------------------------------------------------------
+		int CountOne(int indx) {
+			//		returns: the bitflag of a cell impossible values
+			//					by the collection of bit of numbers cell x,y
+			//					on row, column, block and optionally diagonals
+
+			int x,y;
+			x=indx%tabSize;
+			y=indx/tabSize;
+			return CountOne(x,y);
+		}
+
+		//------------------------------------------------------
+		//	Count forbidden values for a cell
+		//------------------------------------------------------
+		public CellResult CountOne(GameCell cell) {
+			return CountOne(cell.cellX,cell.cellY,cell.fixnum);
+		}
+
+		//------------------------------------------------------
+		//	Count forbidden values for a cell
+		//------------------------------------------------------
+		public int CountOne(int x,int y) {
+			CellResult res=CountOne(x,y,0);
+			return res.cellnums;
+		}
+
+		//------------------------------------------------------
+		//	Count forbidden values for a cell
+		//------------------------------------------------------
+		public CellResult CountOne(int x,int y,int cellnum=0) {
+			//		returns: the bitflag of a cell impossible values
+			//					by the collection of bit of numbers cell x,y
+			//					on row, column, block and optionally diagonals
+			int val=0;
+			int ix,iy;
+			CellResult cRes=new CellResult();
+			//int y0=y/susizey*susizey;
+			//int x0=x/susizex*susizex;
+			int y0=y/yCells*yCells;
+			int x0=x/xCells*xCells;
+			//	Collects bits of column
+			ix=x;
+			for(iy=tabSize; (iy--)>0; ) {
+				if(iy==y)
+					continue;			//	Skip at actual cell
+				//int cellx=GetTableX(ix,iy);
+				val|=TestFlag(cellnum,ix,iy,cRes);
+			}
+			//	Collects bits of row
+			iy=y;
+			for(ix=tabSize; (ix--)>0; ) {
+				if(ix==x)
+					continue;			//	Skip at actual cell
+				//int cellx=GetTableX(ix,iy);
+				val|=TestFlag(cellnum,ix,iy,cRes);
+			}
+			//	Collects bits of block
+			for(iy=y0+yCells; (iy--)>y0; ) {
+				for(ix=x0+xCells; (ix--)>x0; ) {
+					if((iy==y)&&(ix==x))
+						continue;		//	Skip at actual cell
+					//int cellx=GetTableX(ix,iy);
+					val|=TestFlag(cellnum,ix,iy,cRes);
+				}
+			}
+			//	If diagonals are observed
+			//if(diagfl==DIAGGAME){
+			if(diagFlag==(int)GameType.DIAGGAME) {
+				if(x==y) {
+					//	Collects bits of top-down diagonal
+					for(ix=tabSize; (ix--)>0; ) {
+						if(ix==x)
+							continue;	//	Skip at actual cell
+						iy=ix;
+						//int cellx=GetTableX(ix,iy);
+						val|=TestFlag(cellnum,ix,iy,cRes);
+					}
+				}
+				if((x+y+1)==tabSize) {
+					//	Collects bits of bottom-up diagonal
+					for(ix=tabSize; (ix--)>0; ) {
+						if(ix==x)
+							continue;	//	Skip at actual cell
+						iy=tabSize-ix-1;
+						//int cellx=GetTableX(ix,iy);
+						val|=TestFlag(cellnum,ix,iy,cRes);
+					}
+				}
+			}
+			cRes.cellnums=val&numbitmask;
+			return cRes;
+		}
+		//	test conflict
+		int TestFlag(int flag,int ix,int iy,CellResult res) {
+			int bits=cell(ix,iy).fixnum;
+			if((flag&bits)!=0) {
+				AddToDoubles(ix,iy,res.errList);
+			}
+			return bits;
+		}
+		//	build conflict list
+		static void AddToDoubles(int x,int y,List<int[]> dbl) {
+			int ix=dbl.FindIndex(e => ((e[0]==x)&&(e[1]==y)));
+			if(ix<0) {
+				//	cell not in list
+				dbl.Add(new int[] { x,y });
+			}
+		}
+
+		public T DeepClone<T>(T obj) where T: class {
 			T objResult;
 			using(MemoryStream ms=new MemoryStream()) {
 				BinaryFormatter bf=new BinaryFormatter();

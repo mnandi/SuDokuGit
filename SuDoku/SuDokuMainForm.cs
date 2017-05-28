@@ -140,8 +140,8 @@ namespace SuDoku {
 					GameCell item=gameTable.cell(xx,yy);
 					if(item.fixNum<1)
 						continue;
-					List<int[]> errors=GameCheck.CheckValues(item);
-					int errCount=errors.Count;
+					CellResult cErrors=gameTable.CountOne(item);
+					int errCount=cErrors.errList.Count;
 					if(errCount==0)
 						continue;
 					conflictNb++;
@@ -167,6 +167,7 @@ namespace SuDoku {
 		void RedrawTable() {
 			gameTable.xCells=actGameDef.xCells;
 			gameTable.yCells=actGameDef.yCells;
+			gameTable.diagFlag=actGameDef.xCross;
 			int cellSizX=pictureTable.Width-((gameTable.tabSize+1)*Constants.cellOffs+(actGameDef.yCells-1)*Constants.groupOffs);
 			int cellSizY=pictureTable.Height-((gameTable.tabSize+1)*Constants.cellOffs+(actGameDef.xCells-1)*Constants.groupOffs);
 			cellSize=Math.Min(cellSizX,cellSizY)/gameTable.tabSize;
