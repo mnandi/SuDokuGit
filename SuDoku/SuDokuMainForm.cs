@@ -82,25 +82,27 @@ namespace SuDoku {
 
 		private void buttonStartGame_Click(object sender,EventArgs e) {
 			if(!gameState) {		//	false=not gaming / true=gaming
-				//	not gaming
+				//	not gaming - start game
 				buttonStartGame.Text="Játék leállítása";
 				comboGameType.Enabled=
 				numericLevel.Enabled=
 				comboGameName.Enabled=
 				textGameComment.Enabled=false;
+				buttonList=new List<int[]>();
 				gameTable.ClearSelects();
 			} else {
-				//	gaming
-				buttonList=new List<int[]>();
+				//	gaming - stop game
 				buttonStartGame.Text="--> Játék indítása";
 				comboGameType.Enabled=
 				numericLevel.Enabled=
 				comboGameName.Enabled=
 				textGameComment.Enabled=true;
 				//	remove gamed cells
-				for(int ii=0; ii<buttonList.Count; ii--) {
+				int count=buttonList.Count;
+				for(int ii=0; ii<count; ii++) {
 					gameTable.cell(buttonList[ii][0],buttonList[ii][1]).fixNum=0;
 				}
+				pictureTable_Resize(null,null);
 			}
 			gameState=!gameState;
 		}
@@ -370,6 +372,12 @@ namespace SuDoku {
 				pictureTable_Resize(null,null);
 			} else {
 				//	Remove only lasts
+				int count=buttonList.Count;
+				if(count>0) {
+					count--;
+					gameTable.cell(buttonList[count][0],buttonList[count][1]).fixNum=0;
+					buttonList.RemoveAt(count);
+				}
 			}
 		}
 
