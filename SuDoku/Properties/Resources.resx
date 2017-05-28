@@ -117,30 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="MB_caption_err" xml:space="preserve">
-    <value>Error</value>
-  </data>
-  <data name="MB_caption_exit" xml:space="preserve">
-    <value>Exit</value>
-  </data>
-  <data name="MB_caption_info" xml:space="preserve">
-    <value>Információ</value>
-  </data>
-  <data name="MB_caption_result" xml:space="preserve">
-    <value>Eredmény</value>
-  </data>
-  <data name="MB_msg_1result" xml:space="preserve">
-    <value>Egy megoldás van!</value>
-  </data>
-  <data name="MB_msg_MANYresult" xml:space="preserve">
-    <value>Több, legalább {0} megoldás is van!</value>
-  </data>
-  <data name="MB_msg_NOresult" xml:space="preserve">
-    <value>A tábla nem oldható meg</value>
-  </data>
-  <data name="MB_msg_result" xml:space="preserve">
-    <value>A tábla megoldása\r\nBefejezem</value>
-  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="SuDoku" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\SuDoku.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

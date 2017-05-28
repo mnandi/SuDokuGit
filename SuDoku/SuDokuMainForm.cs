@@ -185,9 +185,14 @@ namespace SuDoku {
 					break;
 				case sresult.SOLVE_OK:			//	-1	"Jó megoldás !"
 					//	Returns:
-					pictureTable_Resize(null,null);
-					msgid=chlang.GetLocalizedString("MB_msg_result");
-					msgtype=chlang.GetLocalizedString("MB_caption_result");
+					if(type==solvetype.MAKERESULT) {
+						pictureTable_Resize(null,null);
+						msgid=chlang.GetLocalizedString("MB_msg_result");
+						msgtype=chlang.GetLocalizedString("MB_caption_result");
+					}else{
+						msgid=chlang.GetLocalizedString("MB_msg_solvable");
+						msgtype=chlang.GetLocalizedString("MB_caption_result");
+					}
 					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
 				case sresult.SOLVE_NORESULT:	//	 0	"Hiba, nincs megoldás"
@@ -200,13 +205,13 @@ namespace SuDoku {
 					msgtype=chlang.GetLocalizedString("MB_caption_result");
 					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
-				case sresult.SOLVE_MORERESULT:	//	>1	"Több megoldás"
-					msgid=chlang.GetLocalizedString(string.Format("MB_msg_MANYresult",(int)sret));
+				case sresult.SOLVE_MORERESULT:	//	>15	"Több megoldás"
+					msgid=string.Format(chlang.GetLocalizedString("MB_msg_MANYresult"),(int)sret);
 					msgtype=chlang.GetLocalizedString("MB_caption_result");
 					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
-				default:						//	>2	"Több megoldás"
-					msgid=chlang.GetLocalizedString(string.Format("MB_msg_MANYresult",(int)sret));
+				default:						//	<15	"Több megoldás"
+					msgid=string.Format(chlang.GetLocalizedString("MB_msg_NBresult"),(int)sret);
 					msgtype=chlang.GetLocalizedString("MB_caption_result");
 					MessageBox.Show(msgid,msgtype,MessageBoxButtons.OK,MessageBoxIcon.Information);
 					break;
@@ -337,6 +342,8 @@ namespace SuDoku {
 		#endregion
 		#region Numpad handling
 		private void pictureTable_MouseClick(object sender,MouseEventArgs e) {
+			if(gameState<0)		//	0=not playing / 1=playing / -1-play stopped
+				return;
 			GameCell item=null;
 			int xx=gameTable.tabSize;
 			while(SetLeft(xx,cellSize)>e.X)
@@ -354,10 +361,12 @@ namespace SuDoku {
 			int y=SetTop(yy,cellSize)+cellSize*7/10;
 			Point ptCell=((Control)sender).PointToScreen(new Point(x,y));
 			int num;
-			if(e.Button==MouseButtons.Left) {
+			if((e.Button==MouseButtons.Left)&&(gameState>0)) {
+				//	left buttom & playing
 				num=ShowNumpad(ptCell,item,true);
 				pictureTable.Focus();
 			} else {
+				//	right button | not plying
 				num=ShowNumpad(ptCell,item,false);
 				pictureTable.Focus();
 			}

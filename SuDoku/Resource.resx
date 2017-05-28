@@ -136,8 +136,8 @@
     <value>A tábla nincs megfelelően kitöltve
 Túl kevés kitöltött cellát tartalmaz!</value>
   </data>
-  <data name="MB_msg_MANYresult" xml:space="preserve">
-    <value>Több, legalább {0} megoldás is van!</value>
+  <data name="MB_msg_NBresult" xml:space="preserve">
+    <value>{0} megoldás is van!</value>
     <comment>{0} - a megoldások darabszáma</comment>
   </data>
   <data name="MB_msg_NOresult" xml:space="preserve">
@@ -149,6 +149,10 @@ Befejezem</value>
   </data>
   <data name="MB_msg_stopped" xml:space="preserve">
     <value>A művelet leállítva</value>
+  </data>
+  <data name="MB_msgMANYresult" xml:space="preserve">
+    <value>Legalább {0} megoldás van!</value>
+    <comment>{0} - a maximális  megoldásszám</comment>
   </data>
   <data name="MB_msg_ERRresult" xml:space="preserve">
     <value>A megoldás nem jó!
@@ -164,5 +168,8 @@ Javítsa ki!</value>
   <data name="MB_msg_OKresult" xml:space="preserve">
     <value>Gratulálok!
 A tábla megoldva!</value>
+  </data>
+  <data name="MB_msg_solvable" xml:space="preserve">
+    <value>A tábla megoldható!</value>
   </data>
 </root>

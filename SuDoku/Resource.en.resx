@@ -135,8 +135,8 @@
   <data name="MB_msg_errfill" xml:space="preserve">
     <value>Insufficient table filling</value>
   </data>
-  <data name="MB_msg_MANYresult" xml:space="preserve">
-    <value>At least {0} result exists!</value>
+  <data name="MB_msg_NBresult" xml:space="preserve">
+    <value>{0} result exists!</value>
     <comment>{0} - a megoldások darabszáma</comment>
   </data>
   <data name="MB_msg_NOresult" xml:space="preserve">
@@ -148,6 +148,10 @@ I will close the play</value>
   </data>
   <data name="MB_msg_stopped" xml:space="preserve">
     <value>Operation stopped</value>
+  </data>
+  <data name="MB_msgMANYresult" xml:space="preserve">
+    <value>At least {0} result exists!</value>
+    <comment>{0} - maximális megoldásszám</comment>
   </data>
   <data name="MB_msg_ERRresult" xml:space="preserve">
     <value>Defected solution!</value>
@@ -163,5 +167,8 @@ Fill it please!!</value>
   <data name="MB_msg_OKresult" xml:space="preserve">
     <value>Congratulation!
 Table is solved!</value>
+  </data>
+  <data name="MB_msg_solvable" xml:space="preserve">
+    <value>The game is resolvable!</value>
   </data>
 </root>
