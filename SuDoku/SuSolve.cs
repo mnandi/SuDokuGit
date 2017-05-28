@@ -20,21 +20,28 @@ namespace SuDoku {
 		TESTRESULTS
 	};
 	enum sresult {
-		SOLVE_NORESULT=-1,	//	-1,"Hiba, nincs megoldás"
-		SOLVE_OK=0,			//	 0,"Jó megoldás !"
-		SOLVE_MORE,			//	 1,"More then one solution"
-		SOLVE_NOMEM1,		//	 2,"No enough memory space"
-		SOLVE_UNPOSSIBLE,	//	 3,"Lehetetlen megoldás"
-		SOLVE_NOMEM2,		//	 4,"No enough memory space"
-		SOLVE_FILE,			//	 5,"Wrong file parameter"
-		SOLVE_PARAM,		//	 6,"Wrong game parameter"
-		SOLVE_TABLE,		//	 7,"Not enough game lines"
-		SOLVE_DATA			//	 8,"Data error"
+		SOLVE_MORE=-9,		//	-9	"More then one solution"
+		SOLVE_NOMEM1,		//		"No enough memory space"
+		SOLVE_UNPOSSIBLE,	//		"Lehetetlen megoldás"
+		SOLVE_NOMEM2,		//		"No enough memory space"
+		SOLVE_FILE,			//		"Wrong file parameter"
+		SOLVE_PARAM,		//		"Wrong game parameter"
+		SOLVE_TABLE,		//		"Not enough game lines"
+		SOLVE_DATA,			//		"Data error"
+		SOLVE_OK=-1,		//	-1	"Jó megoldás !"
+		SOLVE_NORESULT=0,	//	 0	"Hiba, nincs megoldás"
+							//	>0	"A megoldások száma"
 	};
 	enum PHASE {
 		PHcreate=0,	//	Create	game
 		PHplay		//	Play	game
 	};
+	public class DataErrorException: Exception {
+		int value;
+		public DataErrorException(int val, string messg) : base(messg){
+			value=val;
+		}
+	}
 	public class CellResult {
 		public int cellnums=0;
 		public List<int[]> errList=new List<int[]>();
@@ -75,6 +82,7 @@ namespace SuDoku {
 			//		=0	- Solution found
 			//		>0	- More than one solution exist
 			int nbresults=0;
+			trynb=0;
 			//	Solving table
 			while(true) {
 Recount:		int ret=SolveAll();
@@ -100,18 +108,20 @@ BackTry:		if(ret>=0) {
 								////		free(pretab);
 								////		pretab=tmptab;
 								////	}
-								while(tableQueue.Size>0)
-									gameTable=tableQueue.Pop();
+								//?while(tableQueue.Size>0) {
+								//?	gameTable=tableQueue.Pop();
+								//?	GameCell cell=gameTable.cell(gameTable.x,gameTable.y);
+								//?}
 								nbresults++;
 								////	pretab=(SUTAB*)malloc(sizeof(SUTAB));
 								////	memcpy(pretab,psutab,sizeof(SUTAB));
 								////	pretab->prevtab=NULL;
-								tableQueue.Push(gameTable);
+								//?tableQueue.Push(gameTable);
 								////					if(gameTable.prevtab==NULL){
-								if(tableQueue.Size==0) {
-									//	No empty cell in game table
-									break;
-								}
+								//? if(tableQueue.Size==0) {
+								//?	//	No empty cell in game table
+								//?	break;
+								//? }
 								ret=-1;
 								goto BackTry;
 							} else {
@@ -120,7 +130,8 @@ BackTry:		if(ret>=0) {
 								////	pretab=(SUTAB*)malloc(sizeof(SUTAB));
 								////	memcpy(pretab,psutab,sizeof(SUTAB));
 								////	pretab->prevtab=tmptab;
-								tableQueue.Push(gameTable);
+								//? tableQueue.Push(gameTable);
+								ret=-1;
 								goto BackTry;
 								//return sresult.SOLVE_MORE;
 							}
@@ -142,13 +153,13 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 						//    psutab=wsutab;
 						gameTable=tableQueue.Pop();
 						--level;
+						textActLevel.Text=level.ToString();
+						textActLevel.Refresh();
 					} else {
 						//	Itt a vége, nincs megoldás
 						switch(nbresults) {
 							case 0:
 								return SolveExit(sresult.SOLVE_NORESULT,"Hiba, nincs megoldás");
-							case 1:
-								return (int)sresult.SOLVE_OK;
 							default:
 								if(nbresults<5)
 									//if(gameTable.prevtab!=NULL)
@@ -182,6 +193,11 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 				//    return SolveExit(sresult.SOLVE_NOMEM2,"No enough memory space");
 				//}
 				++level;
+				textActLevel.Text=level.ToString();
+				textActLevel.Refresh();
+				trynb++;
+				textTryNb.Text=trynb.ToString();
+				textTryNb.Refresh();
 				//memcpy(wsutab,psutab,sizeof(SUTAB));
 				//wsutab->prevtab=psutab;
 				//psutab=wsutab;
@@ -192,7 +208,7 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 				gameTable.level=level;
 			}
 
-			return (int)sresult.SOLVE_OK;	//	SolveExit(SOLVE_OK,"Jó megoldás !");
+			return sresult.SOLVE_OK;	//	SolveExit(SOLVE_OK,"Jó megoldás !");
 		}
 
 //        //******************************************************
@@ -205,7 +221,7 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 //#if DEBUG
 //                GameCell cell=gameTable.cell(xx);
 //#endif
-//                if(gameTable.cell(xx).fixnum==0)
+//                if(gameTable.cell(xx).fixbitnum==0)
 //                    return 0;
 //            }
 //            return 1;
@@ -268,10 +284,10 @@ EndSearch:	//	Searches the 1st best case
 			for(iy=gameTable.tabSize; (iy--)>0; ) {
 				for(ix=gameTable.tabSize; (ix--)>0; ) {
 					//int cellx=GetTableX(ix,iy);	///	iy*susize+ix;
-					if((gameTable.cell(ix,iy).fixnum)==0)
+					if((gameTable.cell(ix,iy).fixbitnum)==0)
 						continue;	//	Empty input item
-					val=gameTable.CountOne(ix,iy);	//	val: Impossibles in ix,iy
-					if((val&gameTable.cell(ix,iy).fixnum)!=0) {
+					val=gameTable.CountCellFlag(ix,iy);	//	val: Impossibles in ix,iy
+					if((val&gameTable.cell(ix,iy).fixbitnum)!=0) {
 						//if((gameTable.cell(ix,iy).orig==0)||(phase==(int)PHASE.PHcreate)) {
 						if((gameTable.cell(ix,iy).orig==0)||(gameState==false)) {
 							gameTable.cell(ix,iy).selected=1;
@@ -298,7 +314,7 @@ EndSearch:	//	Searches the 1st best case
 			for(iy=gameTable.tabSize; (iy--)>0; ) {
 				for(ix=gameTable.tabSize; (ix--)>0; ) {
 					//int cellx=GetTableX(ix,iy);
-					if((gameTable.cell(ix,iy).fixnum)!=0)
+					if((gameTable.cell(ix,iy).fixbitnum)!=0)
 						continue;
 					ret=SolveOne(ix,iy);	//	Sets the possible values in a cell
 					//			ret	-1	- wrong value
@@ -320,10 +336,10 @@ EndSearch:	//	Searches the 1st best case
 			//			 0	- no new fixed value
 			//			 1	- fixes a number
 
-			int val=gameTable.CountOne(x,y);	//	val: Impossibles in iy,ix
+			int val=gameTable.CountCellFlag(x,y);	//	val: Impossibles in iy,ix
 			int lst;
 			//int	cellx=GetTableX(x,y);	///	y*susize+x;
-			if((val&gameTable.cell(x,y).fixnum)!=0) {
+			if((val&gameTable.cell(x,y).fixbitnum)!=0) {
 				//ASSERT(0);
 				return -2;	//	There are the same number as own
 			}
@@ -355,7 +371,7 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 		//------------------------------------------------------
 		int CheckOne(int x,int y) {
 			//	returns: the nbr of possible valuex in cell x,y
-			int val=gameTable.CountOne(x,y);		//	val: Impossibles in iy,ix
+			int val=gameTable.CountCellFlag(x,y);		//	val: Impossibles in iy,ix
 			int fix=TestList(x,y,0);	//
 			if((val&fix)!=0)
 				return actGameDef.sumask;
@@ -389,7 +405,7 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 					continue;				//	skips the actual cell
 				int cellv;
 				//int cellx=GetTableX(x,iy);
-				if((cellv=gameTable.cell(x,iy).fixnum)!=0) {
+				if((cellv=gameTable.cell(x,iy).fixbitnum)!=0) {
 					++nn;
 					yval|=cellv;			//	set if own block line
 				}
@@ -409,7 +425,7 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 							if((iy>=y0)&&(iy<(y0+actGameDef.yCells)))
 								continue;	//	skip in own bloxk
 							//int cellx=GetTableX(ix,iy);
-							if(gameTable.cell(ix,iy).fixnum==sunum)
+							if(gameTable.cell(ix,iy).fixbitnum==sunum)
 								nn++;
 						}
 					}
@@ -427,7 +443,7 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 					continue;				//	skips the actual cell
 				//int cellx=GetTableX(ix,y);	//	y*susize+ix;
 				int cellv;
-				if((cellv=gameTable.cell(ix,y).fixnum)!=0) {
+				if((cellv=gameTable.cell(ix,y).fixbitnum)!=0) {
 					++nn;
 					xval|=cellv;			//	set if own block line
 				}
@@ -447,7 +463,7 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 							if((ix>=x0)&&(ix<(x0+actGameDef.xCells)))
 								continue;	//	skip in own bloxk
 							//int cellx=GetTableX(ix,iy);
-							if(gameTable.cell(ix,iy).fixnum==sunum)
+							if(gameTable.cell(ix,iy).fixbitnum==sunum)
 								nn++;
 						}
 					}
@@ -530,6 +546,16 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 			for(num=1; (val&1)==0; ++num) {
 				val>>=1;
 			}
+#if DEBUG
+			if(val!=1) {
+				string msg=string.Format("Hibás bit formátumú szám: {0} -> {1}",val,num);
+				throw new DataErrorException(0,msg);
+			}
+			if(num>gameTable.tabSize) {
+				string msg=string.Format("Hibás, túl nagy szám: {0}",num);
+				throw new DataErrorException(0,msg);
+			}
+#endif
 			return num;
 		}
 

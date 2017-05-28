@@ -19,7 +19,7 @@ namespace SuDoku {
 
 			cell=cll;
 
-			CellResult rerr=SuDokuForm.gameTable.CountOne(cell);
+			CellResult rerr=SuDokuForm.gameTable.CountCellFlag(cell);
 			int nC=Math.Max(def.xCells,def.yCells);
 			int nR=Math.Min(def.xCells,def.yCells);
 
@@ -37,7 +37,6 @@ namespace SuDoku {
 					butt.Text=((char)(num+((SuDokuForm.gameTable.tabSize>=10)?0x41:0x31))).ToString();
 					butt.Tag=num+1;
 					if(!mode) {
-						//if((cell.vFlag&(1<<(num+1)))!=0)
 						if((rerr.cellnums&(1<<(num)))!=0)
 							butt.Enabled=false;
 					}
@@ -78,7 +77,7 @@ namespace SuDoku {
 					numMask=(1<<(numButton-1));
 					break;
 			}
-			CellResult rerr=SuDokuForm.gameTable.CountOne(cell);
+			CellResult rerr=SuDokuForm.gameTable.CountCellFlag(cell);
 		}
 	}
 }

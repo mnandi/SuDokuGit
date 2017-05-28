@@ -46,6 +46,12 @@
 			this.buttonExit = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.comboGameType = new System.Windows.Forms.ComboBox();
+			this.textGameName = new System.Windows.Forms.TextBox();
+			this.label5 = new System.Windows.Forms.Label();
+			this.textActLevel = new System.Windows.Forms.TextBox();
+			this.label6 = new System.Windows.Forms.Label();
+			this.label7 = new System.Windows.Forms.Label();
+			this.textTryNb = new System.Windows.Forms.TextBox();
 			this.panelTiles.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureTable)).BeginInit();
 			this.panelControl.SuspendLayout();
@@ -81,6 +87,12 @@
 			// 
 			this.panelControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.panelControl.Controls.Add(this.textTryNb);
+			this.panelControl.Controls.Add(this.label7);
+			this.panelControl.Controls.Add(this.label6);
+			this.panelControl.Controls.Add(this.textActLevel);
+			this.panelControl.Controls.Add(this.label5);
+			this.panelControl.Controls.Add(this.textGameName);
 			this.panelControl.Controls.Add(this.buttonResolveTable);
 			this.panelControl.Controls.Add(this.buttonCheckResolving);
 			this.panelControl.Controls.Add(this.buttonSaveGame);
@@ -107,37 +119,41 @@
 			// 
 			// buttonResolveTable
 			// 
-			this.buttonResolveTable.Location = new System.Drawing.Point(12, 166);
+			this.buttonResolveTable.BackColor = System.Drawing.Color.GreenYellow;
+			this.buttonResolveTable.Location = new System.Drawing.Point(12, 290);
 			this.buttonResolveTable.Name = "buttonResolveTable";
 			this.buttonResolveTable.Size = new System.Drawing.Size(137, 30);
 			this.buttonResolveTable.TabIndex = 18;
 			this.buttonResolveTable.Text = "Megoldás";
-			this.buttonResolveTable.UseVisualStyleBackColor = true;
+			this.buttonResolveTable.UseVisualStyleBackColor = false;
 			this.buttonResolveTable.Click += new System.EventHandler(this.buttonResolveTable_Click);
 			// 
 			// buttonCheckResolving
 			// 
-			this.buttonCheckResolving.Location = new System.Drawing.Point(152, 166);
+			this.buttonCheckResolving.BackColor = System.Drawing.Color.MediumTurquoise;
+			this.buttonCheckResolving.Location = new System.Drawing.Point(152, 290);
 			this.buttonCheckResolving.Name = "buttonCheckResolving";
 			this.buttonCheckResolving.Size = new System.Drawing.Size(137, 30);
 			this.buttonCheckResolving.TabIndex = 2;
 			this.buttonCheckResolving.Text = "Megoldhatóság";
-			this.buttonCheckResolving.UseVisualStyleBackColor = true;
+			this.buttonCheckResolving.UseVisualStyleBackColor = false;
 			this.buttonCheckResolving.Click += new System.EventHandler(this.buttonCheckResolving_Click);
 			// 
 			// buttonSaveGame
 			// 
-			this.buttonSaveGame.Location = new System.Drawing.Point(154, 275);
+			this.buttonSaveGame.Location = new System.Drawing.Point(153, 163);
 			this.buttonSaveGame.Name = "buttonSaveGame";
-			this.buttonSaveGame.Size = new System.Drawing.Size(135, 30);
+			this.buttonSaveGame.Size = new System.Drawing.Size(137, 30);
 			this.buttonSaveGame.TabIndex = 5;
 			this.buttonSaveGame.Text = "Játék mentése";
 			this.buttonSaveGame.UseVisualStyleBackColor = true;
+			this.buttonSaveGame.Click += new System.EventHandler(this.buttonSaveGame_Click);
 			// 
 			// comboGameName
 			// 
+			this.comboGameName.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.comboGameName.FormattingEnabled = true;
-			this.comboGameName.Location = new System.Drawing.Point(12, 335);
+			this.comboGameName.Location = new System.Drawing.Point(12, 359);
 			this.comboGameName.Name = "comboGameName";
 			this.comboGameName.Size = new System.Drawing.Size(277, 24);
 			this.comboGameName.TabIndex = 10;
@@ -157,7 +173,7 @@
 			// 
 			// textGameComment
 			// 
-			this.textGameComment.Location = new System.Drawing.Point(12, 380);
+			this.textGameComment.Location = new System.Drawing.Point(12, 131);
 			this.textGameComment.Name = "textGameComment";
 			this.textGameComment.Size = new System.Drawing.Size(277, 22);
 			this.textGameComment.TabIndex = 11;
@@ -165,7 +181,7 @@
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(9, 360);
+			this.label4.Location = new System.Drawing.Point(9, 111);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(83, 17);
 			this.label4.TabIndex = 16;
@@ -174,16 +190,16 @@
 			// label3
 			// 
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(9, 315);
+			this.label3.Location = new System.Drawing.Point(9, 339);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(243, 17);
+			this.label3.Size = new System.Drawing.Size(235, 17);
 			this.label3.TabIndex = 15;
-			this.label3.Text = "Játéktábla neve / Játék kiválasztáasa";
+			this.label3.Text = "Játéktábla neve / Játék kiválasztása";
 			// 
 			// numericLevel
 			// 
 			this.numericLevel.BackColor = System.Drawing.Color.OldLace;
-			this.numericLevel.Location = new System.Drawing.Point(226, 84);
+			this.numericLevel.Location = new System.Drawing.Point(244, 84);
 			this.numericLevel.Maximum = new decimal(new int[] {
             9,
             0,
@@ -196,7 +212,7 @@
             0});
 			this.numericLevel.Name = "numericLevel";
 			this.numericLevel.ReadOnly = true;
-			this.numericLevel.Size = new System.Drawing.Size(63, 22);
+			this.numericLevel.Size = new System.Drawing.Size(45, 22);
 			this.numericLevel.TabIndex = 7;
 			this.numericLevel.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.numericLevel.Value = new decimal(new int[] {
@@ -216,7 +232,7 @@
 			// 
 			// buttonSaveFile
 			// 
-			this.buttonSaveFile.Location = new System.Drawing.Point(154, 412);
+			this.buttonSaveFile.Location = new System.Drawing.Point(154, 391);
 			this.buttonSaveFile.Name = "buttonSaveFile";
 			this.buttonSaveFile.Size = new System.Drawing.Size(136, 30);
 			this.buttonSaveFile.TabIndex = 9;
@@ -226,7 +242,7 @@
 			// 
 			// buttonClearGame
 			// 
-			this.buttonClearGame.Location = new System.Drawing.Point(154, 202);
+			this.buttonClearGame.Location = new System.Drawing.Point(13, 202);
 			this.buttonClearGame.Name = "buttonClearGame";
 			this.buttonClearGame.Size = new System.Drawing.Size(136, 30);
 			this.buttonClearGame.TabIndex = 3;
@@ -236,7 +252,7 @@
 			// 
 			// buttonTestGame
 			// 
-			this.buttonTestGame.Location = new System.Drawing.Point(153, 125);
+			this.buttonTestGame.Location = new System.Drawing.Point(154, 202);
 			this.buttonTestGame.Name = "buttonTestGame";
 			this.buttonTestGame.Size = new System.Drawing.Size(137, 30);
 			this.buttonTestGame.TabIndex = 1;
@@ -246,7 +262,7 @@
 			// 
 			// buttonLoadFile
 			// 
-			this.buttonLoadFile.Location = new System.Drawing.Point(12, 412);
+			this.buttonLoadFile.Location = new System.Drawing.Point(12, 391);
 			this.buttonLoadFile.Name = "buttonLoadFile";
 			this.buttonLoadFile.Size = new System.Drawing.Size(136, 30);
 			this.buttonLoadFile.TabIndex = 8;
@@ -256,7 +272,7 @@
 			// 
 			// buttonFillGame
 			// 
-			this.buttonFillGame.Location = new System.Drawing.Point(154, 239);
+			this.buttonFillGame.Location = new System.Drawing.Point(11, 163);
 			this.buttonFillGame.Name = "buttonFillGame";
 			this.buttonFillGame.Size = new System.Drawing.Size(136, 30);
 			this.buttonFillGame.TabIndex = 4;
@@ -266,12 +282,13 @@
 			// 
 			// buttonStartGame
 			// 
-			this.buttonStartGame.Location = new System.Drawing.Point(12, 125);
+			this.buttonStartGame.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+			this.buttonStartGame.Location = new System.Drawing.Point(12, 249);
 			this.buttonStartGame.Name = "buttonStartGame";
 			this.buttonStartGame.Size = new System.Drawing.Size(135, 30);
 			this.buttonStartGame.TabIndex = 0;
 			this.buttonStartGame.Text = "Játék indítása";
-			this.buttonStartGame.UseVisualStyleBackColor = true;
+			this.buttonStartGame.UseVisualStyleBackColor = false;
 			this.buttonStartGame.Click += new System.EventHandler(this.buttonStartGame_Click);
 			// 
 			// buttonExit
@@ -288,7 +305,7 @@
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(9, 64);
+			this.label1.Location = new System.Drawing.Point(98, 64);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(76, 17);
 			this.label1.TabIndex = 13;
@@ -297,11 +314,59 @@
 			// comboGameType
 			// 
 			this.comboGameType.FormattingEnabled = true;
-			this.comboGameType.Location = new System.Drawing.Point(12, 84);
+			this.comboGameType.Location = new System.Drawing.Point(96, 84);
 			this.comboGameType.Name = "comboGameType";
-			this.comboGameType.Size = new System.Drawing.Size(208, 24);
+			this.comboGameType.Size = new System.Drawing.Size(142, 24);
 			this.comboGameType.TabIndex = 6;
 			this.comboGameType.SelectedIndexChanged += new System.EventHandler(this.comboGameType_SelectedIndexChanged);
+			// 
+			// textGameName
+			// 
+			this.textGameName.Location = new System.Drawing.Point(12, 85);
+			this.textGameName.Name = "textGameName";
+			this.textGameName.Size = new System.Drawing.Size(79, 22);
+			this.textGameName.TabIndex = 19;
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Location = new System.Drawing.Point(9, 64);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(77, 17);
+			this.label5.TabIndex = 20;
+			this.label5.Text = "Játék neve";
+			// 
+			// textActLevel
+			// 
+			this.textActLevel.Location = new System.Drawing.Point(11, 518);
+			this.textActLevel.Name = "textActLevel";
+			this.textActLevel.Size = new System.Drawing.Size(60, 22);
+			this.textActLevel.TabIndex = 21;
+			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Location = new System.Drawing.Point(9, 501);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(46, 17);
+			this.label6.TabIndex = 22;
+			this.label6.Text = "Level:";
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.Location = new System.Drawing.Point(93, 501);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(40, 17);
+			this.label7.TabIndex = 23;
+			this.label7.Text = "Trys:";
+			// 
+			// textTryNb
+			// 
+			this.textTryNb.Location = new System.Drawing.Point(81, 518);
+			this.textTryNb.Name = "textTryNb";
+			this.textTryNb.Size = new System.Drawing.Size(72, 22);
+			this.textTryNb.TabIndex = 24;
 			// 
 			// SuDokuForm
 			// 
@@ -311,6 +376,7 @@
 			this.Controls.Add(this.panelControl);
 			this.Controls.Add(this.panelTiles);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+			this.MinimumSize = new System.Drawing.Size(800, 528);
 			this.Name = "SuDokuForm";
 			this.Text = "SuDoku";
 			this.panelTiles.ResumeLayout(false);
@@ -347,6 +413,12 @@
 		private System.Windows.Forms.Button buttonSaveGame;
 		private System.Windows.Forms.Button buttonCheckResolving;
 		private System.Windows.Forms.Button buttonResolveTable;
+		private System.Windows.Forms.Label label5;
+		private System.Windows.Forms.TextBox textGameName;
+		private System.Windows.Forms.Label label6;
+		private System.Windows.Forms.TextBox textActLevel;
+		private System.Windows.Forms.TextBox textTryNb;
+		private System.Windows.Forms.Label label7;
 	}
 }
 

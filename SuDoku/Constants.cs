@@ -17,6 +17,7 @@ namespace SuDoku {
 		public readonly int xCross;		//	game type: 0=normal, 1=cross
 		public readonly string gName;	//	game type name
 		public int sumask;
+		public int tableSize { get { return xCells*yCells; } }
 		public GameDef(int x,int y,int t,string n){
 			xCells=x;
 			yCells=y;
@@ -35,37 +36,37 @@ namespace SuDoku {
 
 
 		public static GameDef[] gameDefTb=new GameDef[]{
-		new GameDef(3,3,(int)GameType.NODIAGGAME,	"=9x9    (3*3)"),
-		new GameDef(3,3,(int)GameType.DIAGGAME,		"=X9x9   (3*3)"),
-		new GameDef(2,3,(int)GameType.NODIAGGAME,	"=6x6    (2*3)"),
-		new GameDef(2,3,(int)GameType.DIAGGAME,		"=X6x6   (2*3)"),
-		new GameDef(3,4,(int)GameType.NODIAGGAME,	"=12x12  (3*4)"),
-		new GameDef(3,4,(int)GameType.DIAGGAME,		"=X12x12 (3*4)"),
-		new GameDef(4,4,(int)GameType.NODIAGGAME,	"=16x16  (4*4)"),
-		new GameDef(4,4,(int)GameType.DIAGGAME,		"=X16x16 (4*4)"),
-		new GameDef(5,5,(int)GameType.NODIAGGAME,	"=25x25  (5*5)"),
-		new GameDef(5,5,(int)GameType.DIAGGAME,		"=X25x25 (5*5)"),
-		new GameDef(2,5,(int)GameType.NODIAGGAME,	"=10x10  (2*5)"),
-		new GameDef(2,5,(int)GameType.DIAGGAME,		"=X10x10 (2*5)"),
-		new GameDef(3,5,(int)GameType.NODIAGGAME,	"=15x15  (3*5)"),
-		new GameDef(3,5,(int)GameType.DIAGGAME,		"=X15x15 (3*5)"),
-		new GameDef(4,5,(int)GameType.NODIAGGAME,	"=20x20  (4*5)"),
-		new GameDef(4,5,(int)GameType.DIAGGAME,		"=X20x20 (4*5)"),
-		new GameDef(5,2,(int)GameType.NODIAGGAME,	"=10x10  (5*2)"),
-		new GameDef(5,2,(int)GameType.DIAGGAME,		"=X10x10 (5*2)"),
-		new GameDef(5,3,(int)GameType.NODIAGGAME,	"=15x15  (5*3)"),
-		new GameDef(5,3,(int)GameType.DIAGGAME,		"=X15x15 (5*3)"),
-		new GameDef(5,4,(int)GameType.NODIAGGAME,	"=20x20  (5*4)"),
-		new GameDef(5,4,(int)GameType.DIAGGAME,		"=X20x20 (5*4)"),
-		new GameDef(2,4,(int)GameType.NODIAGGAME,	"=8x8    (2*4)"),
-		new GameDef(2,4,(int)GameType.DIAGGAME,		"=X8x8   (2*4)"),
-		new GameDef(4,3,(int)GameType.NODIAGGAME,	"=12x12  (4*3)"),
-		new GameDef(4,3,(int)GameType.DIAGGAME,		"=X12x12 (4*3)"),
-		new GameDef(4,2,(int)GameType.NODIAGGAME,	"=8x8    (4*2)"),
-		new GameDef(4,2,(int)GameType.DIAGGAME,		"=X8x8   (4*2)"),
-		new GameDef(3,2,(int)GameType.NODIAGGAME,	"=6x6    (3*2)"),
-		new GameDef(3,2,(int)GameType.DIAGGAME,		"=X6x6   (3*2)"),
-		new GameDef(2,2,(int)GameType.NODIAGGAME,	"=4x4    (2*2)"),
-		new GameDef(2,2,(int)GameType.DIAGGAME,		"=X4x4   (2*2)")};
+		new GameDef(3,3,(int)GameType.NODIAGGAME,	"=3x3    (9*9)"),
+		new GameDef(3,3,(int)GameType.DIAGGAME,		"=X3x3   (9*9)"),
+		new GameDef(2,3,(int)GameType.NODIAGGAME,	"=2x3    (6*3)"),
+		new GameDef(2,3,(int)GameType.DIAGGAME,		"=X2x3   (6*3)"),
+		new GameDef(3,4,(int)GameType.NODIAGGAME,	"=3x4    (12*12)"),
+		new GameDef(3,4,(int)GameType.DIAGGAME,		"=X3x4   (12*12)"),
+		new GameDef(4,4,(int)GameType.NODIAGGAME,	"=4x4    (16*16)"),
+		new GameDef(4,4,(int)GameType.DIAGGAME,		"=X4x4   (16*16)"),
+		new GameDef(5,5,(int)GameType.NODIAGGAME,	"=5x2    (25*25)"),
+		new GameDef(5,5,(int)GameType.DIAGGAME,		"=X5x5   (25*25)"),
+		new GameDef(2,5,(int)GameType.NODIAGGAME,	"=2x5    (10*10)"),
+		new GameDef(2,5,(int)GameType.DIAGGAME,		"=X2x5   (10*10)"),
+		new GameDef(3,5,(int)GameType.NODIAGGAME,	"=3x5    (15*15)"),
+		new GameDef(3,5,(int)GameType.DIAGGAME,		"=X3x5   (15*15)"),
+		new GameDef(4,5,(int)GameType.NODIAGGAME,	"=4x5    (20*20)"),
+		new GameDef(4,5,(int)GameType.DIAGGAME,		"=X4x5   (20*20)"),
+		new GameDef(5,2,(int)GameType.NODIAGGAME,	"=5x2    (10*10)"),
+		new GameDef(5,2,(int)GameType.DIAGGAME,		"=X5x2   (10*10)"),
+		new GameDef(5,3,(int)GameType.NODIAGGAME,	"=5x3    (15*15)"),
+		new GameDef(5,3,(int)GameType.DIAGGAME,		"=X5x3   (15*15)"),
+		new GameDef(5,4,(int)GameType.NODIAGGAME,	"=5x4    (20*20)"),
+		new GameDef(5,4,(int)GameType.DIAGGAME,		"=X5x4   (20*20)"),
+		new GameDef(2,4,(int)GameType.NODIAGGAME,	"=2x4    (8*8)"),
+		new GameDef(2,4,(int)GameType.DIAGGAME,		"=X2x4   (8*8)"),
+		new GameDef(4,3,(int)GameType.NODIAGGAME,	"=4x3    (12*12)"),
+		new GameDef(4,3,(int)GameType.DIAGGAME,		"=X4x3   (12*12)"),
+		new GameDef(4,2,(int)GameType.NODIAGGAME,	"=4x2    (8*8)"),
+		new GameDef(4,2,(int)GameType.DIAGGAME,		"=X4x2   (8*8)"),
+		new GameDef(3,2,(int)GameType.NODIAGGAME,	"=3x2    (6*6)"),
+		new GameDef(3,2,(int)GameType.DIAGGAME,		"=X3x2   (6*6)"),
+		new GameDef(2,2,(int)GameType.NODIAGGAME,	"=2x2    (4*4)"),
+		new GameDef(2,2,(int)GameType.DIAGGAME,		"=X2x2   (4*4)")};
 	}
 }

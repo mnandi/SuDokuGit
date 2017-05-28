@@ -14,6 +14,7 @@ namespace SuDoku {
 		end,
 	}
 	class GameParams{
+		public string idline;
 		public string name="";
 		public int diag=0;
 		public string tx="3";
@@ -22,7 +23,8 @@ namespace SuDoku {
 		public string comment="";
 		public GameParams() {
 		}
-		public GameParams(string nam) {
+		public GameParams(string id,string nam) {
+			idline=id;
 			name=nam;
 		}
 		public int size { get { return x*y;} }
@@ -43,6 +45,14 @@ namespace SuDoku {
 			gameItemType=GameLineType.none;
 		}
 
+		static public GameParams SetGameId(GameParams par) {
+			par.idline=SetGameIdLine(par);
+			return par;
+		}
+		static public string SetGameIdLine(GameParams par) {
+			string line=string.Format("[{0}]\t={1}{2}x{3}\t ({4}x{4})\t#{5}\t; {6}",par.name,par.tx,par.ty,par.size,par.level,par.comment);
+			return line;
+		}
 		#region Saving / Loading file
 		static public List<string> LoadFile(string filename) {
 			List<string> gameNames=new List<string>();
@@ -59,11 +69,7 @@ namespace SuDoku {
 							}
 							if(iLine[0]=='[') {
 								regular=GameLineType.game;
-								const string pattern=@"^\[([^[]*)\].*$";
-								Match m=Regex.Match(iLine,pattern,RegexOptions.IgnoreCase);
-								//if(!m.Success)
-								//	return -1;
-								gameNames.Add(m.Groups[1].Value);		//	Extract "[...]" from string
+								gameNames.Add(iLine.Replace("\t","  "));
 							}
 						}
 						GameFile.AddLine(regular,iLine);
@@ -92,6 +98,9 @@ namespace SuDoku {
 				//MessageBox.Show(msg);
 			}
 		}
+		public static int GetGameIndexFull(string gameid) {
+			return SearchGame(ExtractGameName(gameid));
+		}
 		public static int GetGameIndex(string game) {
 			return SearchGame(game);
 		}
@@ -105,24 +114,29 @@ namespace SuDoku {
 		public static GameParams GetGameParameters(int indx) {
 			if(indx<0)
 				return null;
-			GameParams gameParams=new GameParams();
 			string gameid=GetGameRow(indx,0);
-			const string pattern=@"^\[([^[]*)\]\s*(=((X)?([0-9]*)?[xX*]([0-9]*)))?\s*([#]([0-9]*))?\s*;(.*)?\s*$";
+			return GetGameID(gameid);
+		}
+		public static GameParams GetGameID(string gameid) {
+			GameParams gameParams=new GameParams();
+			const string pattern=@"^\[([^[]*)\]\s*(=((X)?([0-9]*)?[xX*]([0-9]*)))?\s*([#]([0-9]*))?\s*(;\s*(.*))?\s*$";
 			//	1 name
 			//	4 diagonal
 			//	5 x
 			//	6 y
 			//	8 level
-			//	9 comment
+			//	9 ? comment
+			// 10 comment
 			Match m=Regex.Match(gameid,pattern,RegexOptions.IgnoreCase);
 			//if(!m.Success)
 			//	return null;
+			gameParams.idline=gameid;
 			gameParams.name=m.Groups[1].Value;		//	Extract "[...]" from string
 			gameParams.diag=(string.IsNullOrWhiteSpace(m.Groups[4].Value)?(int)GameType.NODIAGGAME:(int)GameType.DIAGGAME);
 			gameParams.tx=(string.IsNullOrWhiteSpace(m.Groups[5].Value)?"3":m.Groups[5].Value);		//	Extract "=X*y" from string
 			gameParams.ty=(string.IsNullOrWhiteSpace(m.Groups[6].Value)?"3":m.Groups[6].Value);		//	Extract "=n*Y" from string
 			gameParams.tlevel=(string.IsNullOrWhiteSpace(m.Groups[8].Value)?"1":m.Groups[8].Value);	//	Extract "=N" from string
-			gameParams.comment=m.Groups[9].Value;	//	Extract "; XXXX" from string
+			gameParams.comment=m.Groups[10].Value;	//	Extract "; XXXX" from string
 			return gameParams;
 		}
 		#endregion
@@ -162,6 +176,11 @@ namespace SuDoku {
 		#endregion
 
 		#region Internal routines
+		static string ExtractGameName(string gameline) {
+			const string pattern=@"^\[([^]]*)\].*$";
+			Match l=Regex.Match(gameline,pattern,RegexOptions.IgnoreCase);
+			return l.Groups[1].Value;
+		}
 		static int SearchGame(string gamename){
 			const string pattern=@"^\[([^]]*)\].*$";
 			for(int ii=0; ii<listGames.Count; ii++) {

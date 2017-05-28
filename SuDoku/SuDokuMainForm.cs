@@ -27,7 +27,6 @@ namespace SuDoku {
 		static readonly Color back0Color=Color.White;			//	Default
 		static readonly Color back1Color=Color.PaleGoldenrod;	//	XCross
 		static public GameDef actGameDef=null;				//	Actual game definition
-		//static public int tableSize;						//	tablesize of actual game
 		static public GameTable gameTable;					//	Actual game table
 		static public TableQueue tableQueue=null;			//	Previous game tables
 		static SolidBrush br=new SolidBrush(borderColor);	//	Draw rectangle border
@@ -137,10 +136,10 @@ namespace SuDoku {
 			gameTable.ClearSelects(ref selnb);
 			for(int yy=0; yy<gameTable.tabSize; yy++) {
 				for(int xx=0; xx<gameTable.tabSize; xx++) {
-					GameCell item=gameTable.cell(xx,yy);
-					if(item.fixNum<1)
+					GameCell cell=gameTable.cell(xx,yy);
+					if(cell.fixNum<1)
 						continue;
-					CellResult cErrors=gameTable.CountOne(item);
+					CellResult cErrors=gameTable.CountCellFlag(cell);
 					int errCount=cErrors.errList.Count;
 					if(errCount==0)
 						continue;
@@ -200,7 +199,7 @@ namespace SuDoku {
 					   (item.cellX==(actGameDef.xCells*actGameDef.yCells)-1-item.cellY)))?bd:bf;
 			g.FillRectangle(bb,rect);
 			g.DrawRectangle(new Pen(br),rect);
-			if(item.fixnum!=0) {
+			if(item.fixbitnum!=0) {
 				string chstr=((char)(((gameTable.tabSize>9)?Constants.chrBase:Constants.numBase)+item.fixNum)).ToString();
 				if(item.imposs==1){
 					if(item.orig==1)
@@ -321,13 +320,14 @@ namespace SuDoku {
 		private void comboGameName_SelectedIndexChanged(object sender,EventArgs e) {
 			if(comboGameName.SelectedIndex<0)
 				return;
-			int gameIndex=GameFile.GetGameIndex((string)comboGameName.Items[comboGameName.SelectedIndex]);
+			int gameIndex=GameFile.GetGameIndexFull((string)comboGameName.Items[comboGameName.SelectedIndex]);
 			if(gameIndex<0)
 				return;
 			GameParams pars=GameFile.GetGameParameters(gameIndex);
 			if(pars==null)
 				return;
-			comboGameType.Text=string.Format("={0}{1}*{1}\t({2}*{3})",(pars.diag!=0)?"X":"",pars.x*pars.y,pars.x,pars.y);
+			textGameName.Text=pars.name;
+			comboGameType.Text=string.Format("={0}{1}*{2}\t({3}*{3})",(pars.diag!=0)?"X":"",pars.x,pars.y,pars.x*pars.y);
 			numericLevel.Value=pars.level;
 			textGameComment.Text=pars.comment;
 			if((actGameDef.xCells!=pars.x)||(actGameDef.yCells!=pars.y)||(actGameDef.xCross!=pars.diag)) {
@@ -337,7 +337,7 @@ namespace SuDoku {
 			}
 			for(int yy=0; yy<pars.size; yy++) {
 				string rowLine=GameFile.GetGameRow(gameIndex,yy+1);
-				gameTable.FillTableRow(yy,(rowLine[0]=='*')?"":rowLine);
+				gameTable.FillTableRow(yy,((rowLine.Length>0)&&(rowLine[0]!='*'))?rowLine:"");
 			}
 			gameTable.CheckTable();
 			pictureTable_Resize(null,null);
@@ -369,24 +369,65 @@ namespace SuDoku {
 			}
 
 			//RedrawTable();
-			sresult tret;
 			string msg;
-			if((tret=SuSolve(solvetype.MAKERESULT))!=sresult.SOLVE_OK){
-				//	Returns:
-				//		-1	- no solution
-				//		 0	- solved
-				//		>0	- other solve error
-				pictureTable_Resize(null,null);
-				MessageBox.Show("A tábla nem megoldható","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Error);
-			}else{
-				pictureTable_Resize(null,null);
-				msg=string.Format("%s",tret);
-				MessageBox.Show("A tábla megoldása\r\nBefejezem","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
-				//AfxMessageBox(msg,MB_OK);
+			sresult tret=SuSolve(/*solvetype.MAKERESULT*/solvetype.TESTRESULTS);
+			//		-1	- no solution
+			//		 0	- solved
+			//		>0	- other solve error
+			pictureTable_Resize(null,null);
+			switch(tret){
+				case sresult.SOLVE_MORE:		//	-9	"More then one solution"
+				case sresult.SOLVE_NOMEM1:		//		"No enough memory space"
+				case sresult.SOLVE_UNPOSSIBLE:	//		"Lehetetlen megoldás"
+				case sresult.SOLVE_NOMEM2:		//		"No enough memory space"
+				case sresult.SOLVE_FILE:		//		"Wrong file parameter"
+				case sresult.SOLVE_PARAM:		//		"Wrong game parameter"
+				case sresult.SOLVE_TABLE:		//		"Not enough game lines"
+				case sresult.SOLVE_DATA:		//	-2	"Data error"
+				case sresult.SOLVE_NORESULT:	//	 0	"Hiba, nincs megoldás"
+					MessageBox.Show(string.Format("A több {0} megoldása is van!",tret),"Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+					break;
+				case sresult.SOLVE_OK:		//	-1	"Jó megoldás !"
+					//	Returns:
+					MessageBox.Show("A tábla megoldása\r\nBefejezem","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+					break;
+				default:
+					MessageBox.Show("A tábla nem megoldható","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Error);
+					//AfxMessageBox(msg,MB_OK);
+					break;
 			}
 			gameTable=gameTableSave;
 			gameTableSave=null;
 			pictureTable_Resize(null,null);
+		}
+
+		private void buttonSaveGame_Click(object sender,EventArgs e) {
+			string gameName=textGameName.Text;
+			if(string.IsNullOrWhiteSpace(gameName)) {
+				MessageBox.Show("A játék nevet ki kell tölteni!","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
+				return;
+			}
+			int gameIndex=GameFile.GetGameIndex(gameName);
+			if(gameIndex<0) {
+				//	New game - create game definition
+				GameParams pars=GameFile.GetGameParameters(gameIndex);
+				if(pars==null)
+					return;
+				comboGameType.Text=string.Format("={0}{1}*{2}\t({3}*{3})",(pars.diag!=0)?"X":"",pars.x,pars.y,pars.x*pars.y);
+				numericLevel.Value=pars.level;
+				textGameComment.Text=pars.comment;
+				if((actGameDef.xCells!=pars.x)||(actGameDef.yCells!=pars.y)||(actGameDef.xCross!=pars.diag)) {
+					actGameDef=new GameDef(pars.x,pars.y,pars.diag,comboGameType.Text);
+					gameTable.InitTable(pars.x,pars.y);
+					//pictureTable_Resize(null,null);
+				}
+			} else {
+				//	Replace old game - replace game definition
+			}
+			for(int yy=1; yy<actGameDef.tableSize; yy++) {
+				string rowLine=gameTable.ExtractLine(gameIndex);
+				gameTable.FillTableRow(yy,(rowLine[0]=='*')?"":rowLine);
+			}
 		}
 	}
 }

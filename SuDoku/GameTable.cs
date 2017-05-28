@@ -19,8 +19,7 @@ namespace SuDoku {
 		public int cellX;			//	cell X coord
 		public int cellY;			//	cell Y coord
 		public int fixNum=0;		//	cell value: -1=empty, 0-not used, 1-n
-		public int vFlag=0;			//	bit mask of 0=available / 1=occupied numbers
-		public int fixnum { get { return (fixNum<=0)?0:1<<(fixNum-1); } }
+		public int fixbitnum { get { return (fixNum<=0)?0:1<<(fixNum-1); } }
 		public GameCell(int x,int y) {
 			cellX=x;
 			cellY=y;
@@ -71,17 +70,21 @@ namespace SuDoku {
 		public GameCell cell(Point pt) { return cellList[pt.Y*tabSize+pt.X]; }
 
 		public int EndTest() {
-			return cellList.FindIndex(x => x.fixnum==0);
+			return cellList.FindIndex(x => x.fixbitnum==0);
 		}
 
+		#region	Table handling (fill/load/clear) routines
+		//------------------------------------------------------
+		//	Filling
+		//------------------------------------------------------
 		public void FillTableRow(int yy,string rowData) {
 			if(rowData.Length<tabSize)
 				rowData=rowData.PadRight(tabSize);
 			int bas=(tabSize>9)?Constants.chrBase:Constants.numBase;	//	show '1' if table <= 3x3 else 'A'
 			for(int xx=0; xx<tabSize; xx++) {
 				int num=(int)rowData[xx]-bas;
-				if(num<=0)
-					continue;
+				if((num<0)||(num>tabSize))	//	filters the wrong numbers
+					num=0;
 				int ii=yy*tabSize+xx;
 				cellList[ii].fixNum=num;
 				cellList[ii].orig=(num==0)?0:1;
@@ -95,10 +98,26 @@ namespace SuDoku {
 				FillTableRow(yy,lineData[yy+1]);
 			}
 		}
+		//------------------------------------------------------
+		//	Data extracting from table
+		//------------------------------------------------------
+		public string ExtractLine(int lineindex) {
+			if(lineindex>=tabSize)
+				return "";
+			string line="";
+			for(int xx=0; xx<tabSize; xx++) {
+				int num=cell(xx,lineindex+1).fixNum;
+				line+=(num==0)?"":((tabSize<10)?'0':('A'-1)).ToString();
+			}
+			return line;
+		}
+
+		//------------------------------------------------------
+		//	Clear table
+		//------------------------------------------------------
 		public void ClearTable() {
 			for(int ii=0; ii<cellList.Count; ii++) {
 				GameCell cell=cellList[ii];
-				cell.vFlag=0;
 				cell.orig=0;
 				cell.cannum=0;
 				cell.imposs=0;
@@ -133,10 +152,16 @@ namespace SuDoku {
 			}
 			selnb=0;
 		}
+		#endregion
+
+		#region Cell counting/checking routines
+		//------------------------------------------------------
+		//	Checking table errors
+		//------------------------------------------------------
 		public int CheckTable() {
 			int errs=0;
 			for(int ii=0; ii<cellList.Count; ii++) {
-				CellResult rerr=CountOne(cellList[ii]);
+				CellResult rerr=CountCellFlag(cellList[ii]);
 				if(rerr.errList.Count>0)
 					errs++;
 			}
@@ -146,7 +171,7 @@ namespace SuDoku {
 		//------------------------------------------------------
 		//	Count forbidden values for a cell
 		//------------------------------------------------------
-		int CountOne(int indx) {
+		int CountCellFlag(int indx) {
 			//		returns: the bitflag of a cell impossible values
 			//					by the collection of bit of numbers cell x,y
 			//					on row, column, block and optionally diagonals
@@ -154,28 +179,28 @@ namespace SuDoku {
 			int x,y;
 			x=indx%tabSize;
 			y=indx/tabSize;
-			return CountOne(x,y);
+			return CountCellFlag(x,y);
 		}
 
 		//------------------------------------------------------
 		//	Count forbidden values for a cell
 		//------------------------------------------------------
-		public CellResult CountOne(GameCell cell) {
-			return CountOne(cell.cellX,cell.cellY,cell.fixnum);
+		public CellResult CountCellFlag(GameCell cell) {
+			return CountCellFlag(cell.cellX,cell.cellY,cell.fixbitnum);
 		}
 
 		//------------------------------------------------------
 		//	Count forbidden values for a cell
 		//------------------------------------------------------
-		public int CountOne(int x,int y) {
-			CellResult res=CountOne(x,y,0);
+		public int CountCellFlag(int x,int y) {
+			CellResult res=CountCellFlag(x,y,0);
 			return res.cellnums;
 		}
 
 		//------------------------------------------------------
 		//	Count forbidden values for a cell
 		//------------------------------------------------------
-		public CellResult CountOne(int x,int y,int cellnum=0) {
+		public CellResult CountCellFlag(int x,int y,int cellnum=0) {
 			//		returns: the bitflag of a cell impossible values
 			//					by the collection of bit of numbers cell x,y
 			//					on row, column, block and optionally diagonals
@@ -240,7 +265,7 @@ namespace SuDoku {
 		}
 		//	test conflict
 		int TestFlag(int flag,int ix,int iy,CellResult res) {
-			int bits=cell(ix,iy).fixnum;
+			int bits=cell(ix,iy).fixbitnum;
 			if((flag&bits)!=0) {
 				AddToDoubles(ix,iy,res.errList);
 			}
@@ -254,7 +279,9 @@ namespace SuDoku {
 				dbl.Add(new int[] { x,y });
 			}
 		}
+		#endregion
 
+		#region Cloning
 		public T DeepClone<T>(T obj) where T: class {
 			T objResult;
 			using(MemoryStream ms=new MemoryStream()) {
@@ -266,5 +293,6 @@ namespace SuDoku {
 			}
 			return objResult;
 		}
+		#endregion
 	}
 }
