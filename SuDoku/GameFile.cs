@@ -134,7 +134,7 @@ namespace SuDoku {
 			gameParams.pDiag=(string.IsNullOrWhiteSpace(m.Groups[4].Value)?(int)GameType.NODIAGGAME:(int)GameType.DIAGGAME);
 			gameParams.ptX=(string.IsNullOrWhiteSpace(m.Groups[5].Value)?"3":m.Groups[5].Value);		//	Extract "=X*y" from string
 			gameParams.ptY=(string.IsNullOrWhiteSpace(m.Groups[6].Value)?"3":m.Groups[6].Value);		//	Extract "=n*Y" from string
-			gameParams.tlevel=(string.IsNullOrWhiteSpace(m.Groups[8].Value)?"1":m.Groups[8].Value);	//	Extract "=N" from string
+			gameParams.tlevel=(string.IsNullOrWhiteSpace(m.Groups[8].Value)?"1":m.Groups[8].Value);		//	Extract "=N" from string
 			gameParams.pComment=m.Groups[10].Value;	//	Extract "; XXXX" from string
 			return gameParams;
 		}
