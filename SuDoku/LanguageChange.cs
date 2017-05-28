@@ -68,7 +68,12 @@ namespace SuDoku {
 			switch(o.GetType().Name) {
 				case "ComboBox":
 					for(int i=0; i<((ComboBox)o).Items.Count; i++) {
-						((ComboBox)o).Items[i]=resources.GetString(GetItemName(o,objNameProp,i),mCI);
+						try {
+							((ComboBox)o).Items[i]=resources.GetString(GetItemName(o,objNameProp,i),mCI);
+						} catch {
+							//	Exception occur at language select combo box
+							//	this can throw out
+						}
 					}
 					break;
 				case "ListBox":
@@ -88,8 +93,7 @@ namespace SuDoku {
 		}
 
 		private string GetItemName(object o,PropertyInfo objNameProp,int i) {
-			string name=String.Format("{0}.{1}",
-			objNameProp.GetValue(o,null).ToString(),"Items");
+			string name=String.Format("{0}.{1}",objNameProp.GetValue(o,null).ToString(),"Items");
 			if(i!=0)
 				name=String.Format("{0}{1}",name,i);
 			return name;

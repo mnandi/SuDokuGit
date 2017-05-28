@@ -121,6 +121,36 @@
     <value>Magyar</value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="comboLanguage.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 25</value>
+  </data>
+  <data name="comboLanguage.Size" type="System.Drawing.Size, System.Drawing">
+    <value>134, 24</value>
+  </data>
+  <data name="label8.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 5</value>
+  </data>
+  <data name="textMaxLevel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>53, 518</value>
+  </data>
+  <data name="label6.Location" type="System.Drawing.Point, System.Drawing">
+    <value>13, 501</value>
+  </data>
+  <data name="textActLevel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 518</value>
+  </data>
+  <data name="buttonSaveGame.Size" type="System.Drawing.Size, System.Drawing">
+    <value>136, 30</value>
+  </data>
+  <data name="buttonClearGame.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 202</value>
+  </data>
+  <data name="buttonTestGame.Size" type="System.Drawing.Size, System.Drawing">
+    <value>136, 30</value>
+  </data>
+  <data name="buttonFillGame.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 163</value>
+  </data>
   <data name="buttonStartGame.Size" type="System.Drawing.Size, System.Drawing">
     <value>136, 30</value>
   </data>

@@ -29,7 +29,6 @@
 			this.panelControl = new System.Windows.Forms.Panel();
 			this.comboLanguage = new System.Windows.Forms.ComboBox();
 			this.label8 = new System.Windows.Forms.Label();
-			this.buttonCancel = new System.Windows.Forms.Button();
 			this.textMaxLevel = new System.Windows.Forms.TextBox();
 			this.textTryNb = new System.Windows.Forms.TextBox();
 			this.label7 = new System.Windows.Forms.Label();
@@ -83,7 +82,6 @@
 			resources.ApplyResources(this.panelControl, "panelControl");
 			this.panelControl.Controls.Add(this.comboLanguage);
 			this.panelControl.Controls.Add(this.label8);
-			this.panelControl.Controls.Add(this.buttonCancel);
 			this.panelControl.Controls.Add(this.textMaxLevel);
 			this.panelControl.Controls.Add(this.textTryNb);
 			this.panelControl.Controls.Add(this.label7);
@@ -126,14 +124,6 @@
 			// 
 			resources.ApplyResources(this.label8, "label8");
 			this.label8.Name = "label8";
-			// 
-			// buttonCancel
-			// 
-			resources.ApplyResources(this.buttonCancel, "buttonCancel");
-			this.buttonCancel.BackColor = System.Drawing.Color.Red;
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.UseVisualStyleBackColor = false;
-			this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
 			// 
 			// textMaxLevel
 			// 
@@ -361,7 +351,6 @@
 		private System.Windows.Forms.TextBox textTryNb;
 		private System.Windows.Forms.Label label7;
 		private System.Windows.Forms.TextBox textMaxLevel;
-		private System.Windows.Forms.Button buttonCancel;
 		private System.Windows.Forms.ComboBox comboLanguage;
 		private System.Windows.Forms.Label label8;
 	}

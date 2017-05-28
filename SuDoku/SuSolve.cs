@@ -86,12 +86,9 @@ namespace SuDoku {
 			resultList=new TableQueue();
 			trynb=0;
 			maxlev=0;
-			cancelFlag=false;
 			//	Solving table
 			while(true) {
-Recount: if(cancelFlag)
-					return sresult.SOLVE_CANCELLED;
-				int ret=SolveAll();
+Recount:		int ret=SolveAll();
 				//	ret	<0 - no solution
 				//		=0 - no new fixed value
 				//		>0 - new fixed value found
@@ -237,7 +234,7 @@ EndSearch:	//	Searches the 1st best case
 						continue;	//	Empty input item
 					val=gameTable.CountCellFlag(ix,iy);	//	val: Impossibles in ix,iy
 					if((val&gameTable.cell(ix,iy).fixbitnum)!=0) {
-						if((gameTable.cell(ix,iy).orig==0)||(gameState==false)) {
+						if((gameTable.cell(ix,iy).orig==0)||(gameState==0)) {
 							//gameTable.cell(ix,iy).selected=1;
 							gameTable.cell(ix,iy).imposs=1;
 						}

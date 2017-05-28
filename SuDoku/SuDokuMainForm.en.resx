@@ -127,9 +127,6 @@
   <data name="label8.Text" xml:space="preserve">
     <value>Choose language</value>
   </data>
-  <data name="buttonCancel.Text" xml:space="preserve">
-    <value>Stop resolving</value>
-  </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="label5.AutoSize" type="System.Boolean, mscorlib">
     <value>False</value>

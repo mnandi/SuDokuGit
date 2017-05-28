@@ -19,6 +19,8 @@ using System.Resources;
 using System.Threading;
 #endregion
 
+using Properties;
+
 namespace SuDoku {
 	delegate void ShowTimerDelegate();
 
@@ -45,7 +47,7 @@ namespace SuDoku {
 		static SolidBrush bf=new SolidBrush(back0Color);	//	Clear picture
 		static SolidBrush bd=new SolidBrush(back1Color);	//	Clear picture diadonal
 		//	Game states
-		static bool gameState=false;			//	false=not gaming / true=gaming
+		static int gameState=0;		//	0=not playing / 1=playing / -1-play stopped
 		static System.Timers.Timer gameTimer;	//	Game play time counter
 		static int gameCounter=0;				//	game time in seconds	
 		//	sizing parameters
@@ -53,16 +55,15 @@ namespace SuDoku {
 		static int baseX=0;			//	game table left position
 		static int baseY=0;			//	game table top  position
 		static int cellSize;		//	Cell size in pixels
-		static bool cancelFlag=false;
 		#endregion
-		#region Game initialization & gaming
+		#region Game initialization & playing
 		public SuDokuForm() {
 
 			InitializeComponent();
 
 			LanguageChange chlang=new LanguageChange();
-			//chlang.ChangeLanguage("hu-HU");
-			chlang.ChangeLanguage("en");
+			chlang.ChangeLanguage("hu-HU");
+			//chlang.ChangeLanguage("en");
 			chlang.ApplyLanguageToForm(this);
 
 			//	Init game comboBox
@@ -82,25 +83,30 @@ namespace SuDoku {
 		}
 
 		private void buttonStartGame_Click(object sender,EventArgs e) {
-			if(!gameState) {		//	false=not gaming / true=gaming
-				//	not gaming - check game
+			if(gameState==0) {		//	0=not playing / 1=playing / -1-play stopped
+				//	not playing - check game
 				int nerr=gameTable.CheckTable(true);
 				if(nerr>0) {
 					MessageBox.Show("A tábla hibás, nem megoldható\r\nJavítsa ki!","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
 				}
-				//	not gaming - start game
+				//	not playing - start game
 				buttonStartGame.Text="Játék leállítása";
 				buttonClearGame.Text="Lépés törlése";
+				buttonFillGame.Text="Lejátszás törlése";
+				buttonSaveGame.Text="Megállítás";
 				comboGameType.Enabled=
 				numericLevel.Enabled=
 				comboGameName.Enabled=
 				textGameComment.Enabled=false;
 				buttonList=new List<int[]>();
 				gameTable.ClearSelects();
+				gameState=1;
 			} else {
-				//	gaming - stop game
+				//	playing - stop game
 				buttonStartGame.Text="--> Játék indítása";
 				buttonClearGame.Text="Tábla törlése";
+				buttonFillGame.Text="Tábla kitöltése";
+				buttonSaveGame.Text="Játék mentése";
 				comboGameType.Enabled=
 				numericLevel.Enabled=
 				comboGameName.Enabled=
@@ -111,13 +117,14 @@ namespace SuDoku {
 					gameTable.cell(buttonList[ii][0],buttonList[ii][1]).fixNum=0;
 				}
 				pictureTable_Resize(null,null);
+				gameState=0;
 			}
-			gameState=!gameState;
 		}
 		#endregion
 		#region Game Timer
 		void OnTimedEvent(object source,ElapsedEventArgs e) {
-			if(gameState) {
+			if(gameState==1) {	//	0=not playing / 1=playing / -1-play stopped
+				//	here playing
 				gameCounter++;
 				ShowTimer();
 			}
@@ -181,6 +188,8 @@ namespace SuDoku {
 			return ((int)sret);
 		}
 		private void buttonCheckResolving_Click(object sender,EventArgs e) {
+			if(gameState<0)		//	0=not playing / 1=playing / -1-play stopped
+				return;
 			int ret=AnalyzeResult(solvetype.TESTRESULTS);
 			if(ret>1) {
 				diffList=new List<int[]>();
@@ -203,23 +212,26 @@ namespace SuDoku {
 					diffList.Add(new int[]{nn,num});
 				}
 			}
-
 		}
 		private void buttonTestGame_Click(object sender,EventArgs e) {
 			//	Test table
-			if(gameState) {		//	false=not gaming / true=gaming
-				//	here gaming
+			if(gameState<0)
+				return;
+			if(gameState==1) {		//	0=not playing / 1=playing / -1-play stopped
+				//	here playing
 				int nErr=gameTable.CheckTable(false);
 				if(nErr>0) {
 					//	error message
 				}
 			} else {
-				//	here not gaming, filling table
+				//	here not playing, filling table
 				int nErr=gameTable.CheckTable(true);
 				pictureTable_Resize(null,null);
 			}
 		}
 		private void buttonResolveTable_Click(object sender,EventArgs e) {
+			if(gameState<0)		//	0=not playing / 1=playing / -1-play stopped
+				return;
 			AnalyzeResult(solvetype.MAKERESULT);
 		}
 		#endregion
@@ -321,12 +333,12 @@ namespace SuDoku {
 			}
 			if(num>=0) {
 				int nerr=0;
-				if(!gameState) {		//	false=not gaming / true=gaming
-					//	here not gaming
+				if(gameState==0) {		//	0=not playing / 1=playing / -1-play stopped
+					//	here not playing
 					item.orig=1;
 					item.fixNum=num;
 				} else {
-					//	here gaming
+					//	here playing
 					item.orig=0;
 					buttonList.Add(new int[] { xx,yy,item.fixNum });
 					item.fixNum=num;
@@ -338,7 +350,7 @@ namespace SuDoku {
 					DrawCell(g,br,cellSize,gameTable.cell(xx,yy));
 				}
 				pictureTable.Refresh();
-				if((gameState)&&(gameTable.EndTest()<0)){
+				if((gameState==1)&&(gameTable.EndTest()<0)){
 					if(nerr>0) {
 						MessageBox.Show("Hibás kitöltés!\r\nA tábla nincs jól megoldva!","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Error);
 					} else {
@@ -362,33 +374,48 @@ namespace SuDoku {
 		//======================================
 		//	Saving catual game
 		private void buttonSaveGame_Click(object sender,EventArgs e) {
-			string gameName=textGameName.Text;
-			if(string.IsNullOrWhiteSpace(gameName)) {
-				MessageBox.Show("A játék nevet ki kell tölteni!","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
-				return;
-			}
-			int gameIndex=GameFile.GetGameIndex(gameName);
-			string oLine=string.Format("[{0}]\t={1}{2}*{3}\t({4}*{4}\t#{5}\t; {6})",
-													textGameName.Text,
-													(actGameDef.gxCross!=0)?"X":"",
-													actGameDef.gxCells,
-													actGameDef.gyCells,
-													actGameDef.gtabSize,
-													numericLevel.Value,
-													textGameComment.Text);
-			GameFile.AddGame(0,oLine);
-			int ch0=(gameTable.tabSize>9)?Constants.chrBase:Constants.numBase;	//	show '1' if table <= 3x3 else 'A'
-			for(int ii=0; ii<gameTable.tabSize; ii++) {
-				oLine="";
-				for(int jj=0; jj<gameTable.tabSize; jj++) {
-					int num=gameTable.cell(jj,ii).fixNum;
-					oLine+=((char)((num>0)?(num+ch0):0x20)).ToString();
+			if(gameState<0) {		//	0=not playing / 1=playing / -1-play stopped
+				//	here stopped - restart playing
+				buttonSaveGame.Text="Megállítás";
+				gameState=1;
+			} else if(gameState==1){
+				//	here playing - stop playing
+				buttonSaveGame.Text="Folytatás";
+				gameState=-1;
+			} else {
+				//	here not playing - start game saving
+				string gameName=textGameName.Text;
+				if(string.IsNullOrWhiteSpace(gameName)) {
+					//!MessageBox.Show("A játék nevet ki kell tölteni!","Hiba",MessageBoxButtons.OK,MessageBoxIcon.Error);
+					MessageBox.Show("A játék nevet ki kell tölteni!",Resources.MB_caption_err,MessageBoxButtons.OK,MessageBoxIcon.Error);
+					return;
 				}
-				GameFile.AddGame(1,oLine);
+				int gameIndex=GameFile.GetGameIndex(gameName);
+				string oLine=string.Format("[{0}]\t={1}{2}*{3}\t({4}*{4}\t#{5}\t; {6})",
+														textGameName.Text,
+														(actGameDef.gxCross!=0)?"X":"",
+														actGameDef.gxCells,
+														actGameDef.gyCells,
+														actGameDef.gtabSize,
+														numericLevel.Value,
+														textGameComment.Text);
+				GameFile.AddGame(0,oLine);
+				int ch0=(gameTable.tabSize>9)?Constants.chrBase:Constants.numBase;	//	show '1' if table <= 3x3 else 'A'
+				for(int ii=0; ii<gameTable.tabSize; ii++) {
+					oLine="";
+					for(int jj=0; jj<gameTable.tabSize; jj++) {
+						int num=gameTable.cell(jj,ii).fixNum;
+						oLine+=((char)((num>0)?(num+ch0):0x20)).ToString();
+					}
+					GameFile.AddGame(1,oLine);
+				}
+				GameFile.AddGame(2,"*");
 			}
-			GameFile.AddGame(2,"*");
 		}
 		private void buttonSaveFile_Click(object sender,EventArgs e) {
+			if(gameState!=0)		//	0=not playing / 1=playing / -1-play stopped
+				return;
+			//	here not playing
 			OpenFileDialog saveFileDlg=new OpenFileDialog();
 			saveFileDlg.InitialDirectory=".\\";
 			saveFileDlg.Filter="txt files (*.txt)|*.txt|All files (*.*)|*.*";
@@ -399,6 +426,9 @@ namespace SuDoku {
 			}
 		}
 		private void buttonLoadFile_Click(object sender,EventArgs e) {
+			if(gameState!=0)		//	0=not playing / 1=playing / -1-play stopped
+				return;
+			//	here not playing
 			OpenFileDialog loadFileDlg=new OpenFileDialog();
 			loadFileDlg.InitialDirectory=".\\";
 			loadFileDlg.Filter="txt files (*.txt)|*.txt|All files (*.*)|*.*";
@@ -416,10 +446,13 @@ namespace SuDoku {
 		#endregion
 		#region Game handling buttons
 		private void buttonClearGame_Click(object sender,EventArgs e) {
-			if(!gameState) {		//	false=not gaming / true=gaming
+			if(gameState<0)		//	0=not playing / 1=playing / -1-play stopped
+				return;
+			if(gameState==0) {		//	0=not playing / 1=playing / -1-play stopped
 				gameTable.ClearTable();
 				pictureTable_Resize(null,null);
 			} else {
+				//	here playing
 				//	Remove only lasts
 				int count=buttonList.Count;
 				if(count>0) {
@@ -457,15 +490,18 @@ namespace SuDoku {
 			//int errnum=gameTable.CheckTable(true);
 		}
 		private void buttonFillGame_Click(object sender,EventArgs e) {
-			MessageBox.Show("Ez még nincs kész!!","Kitöltés",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+			if(gameState<0)
+				return;
+			if(gameState==0) {		//	0=not playing / 1=playing / -1-play stopped
+				//	here not playing
+				MessageBox.Show("Ez még nincs kész!!","Kitöltés",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+			} else {
+				//	here playing
+			}
 		}
 		#endregion
 
 		#region XXXX
-		private void buttonCancel_Click(object sender,EventArgs e) {
-			cancelFlag=true;
-		}
-
 		protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e) {
 			e.IsInputKey=true;
 			base.OnPreviewKeyDown(e);
@@ -520,11 +556,17 @@ namespace SuDoku {
 					langid="en";
 					break;
 			}
+			//	Remove this event handler because of endless loop raised when
+			//		changing language items in comboBox item list
+			//	Removing will occur null exception, but can throw out there
+			comboLanguage.SelectedIndexChanged-=comboLanguage_SelectedIndexChanged;
 			if(!string.IsNullOrEmpty(langid)) {
 				LanguageChange chlang=new LanguageChange();
 				chlang.ChangeLanguage(langid);
 				chlang.ApplyLanguageToForm(this);
 			}
+			//	Reimplement this event handler to handle event again
+			comboLanguage.SelectedIndexChanged+=comboLanguage_SelectedIndexChanged;
 		}
 		#endregion
 	}

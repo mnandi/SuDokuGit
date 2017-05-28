@@ -14,7 +14,7 @@ namespace SuDoku {
         public int	imposs;		//	unfillable cell (this cell has conflict with other(s))
         //public int	selected;	//	selected cell
         public int	tried;		//	cell with a tried number (susolve choose to try this)
-        public int	orig=0;		//	cell with original input number (filled when not gaming)
+        public int	orig=0;		//	cell with original input number (filled when not playing)
 
 		int cX;			//	cell X coord
 		int cY;			//	cell Y coord

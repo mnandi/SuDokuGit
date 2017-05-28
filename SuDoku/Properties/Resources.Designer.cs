@@ -79,7 +79,7 @@ namespace SuDoku.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Information.
+        ///   Looks up a localized string similar to Információ.
         /// </summary>
         internal static string MB_caption_info {
             get {
@@ -88,7 +88,7 @@ namespace SuDoku.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Result.
+        ///   Looks up a localized string similar to Eredmény.
         /// </summary>
         internal static string MB_caption_result {
             get {
@@ -129,15 +129,6 @@ namespace SuDoku.Properties {
         internal static string MB_msg_result {
             get {
                 return ResourceManager.GetString("MB_msg_result", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A művelet leállítva.
-        /// </summary>
-        internal static string MB_msg_stop {
-            get {
-                return ResourceManager.GetString("MB_msg_stop", resourceCulture);
             }
         }
         

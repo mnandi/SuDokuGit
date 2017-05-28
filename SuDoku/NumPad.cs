@@ -14,7 +14,7 @@ namespace SuDoku {
 		GameCell cell;
 		public int numMask=0;
 		public int numButton=-1;
-		public NumPad(GameCell cll,GameDef def,bool state,bool mode) {
+		public NumPad(GameCell cll,GameDef def,int state,bool mode) {
 			//	mode:
 			//		all	=true  - left button	- view all num
 			//			=false - right button	- view available nums
@@ -34,7 +34,7 @@ namespace SuDoku {
 			Button[,] butts=new Button[nC,nR];
 			Button butt;
 			int mask=rerr.cellnums;
-			if(!state) {
+			if(state==1) {
 				if(cell.canresmask!=0) {
 					mask&=~cell.canresmask;
 				}
@@ -47,7 +47,7 @@ namespace SuDoku {
 					int num=yy*nC+xx;
 					butt.Text=((char)(num+((SuDokuForm.gameTable.tabSize>=10)?0x41:0x31))).ToString();
 					butt.Tag=num+1;
-					if((!mode)||(!state)) {
+					if((!mode)||(state==1)) {
 						//if((rerr.cellnums&(1<<(num)))!=0)
 						if((mask&(1<<(num)))!=0)
 							butt.Enabled=false;

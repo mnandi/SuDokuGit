@@ -86,13 +86,12 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Resource.en.resx" />
+    <EmbeddedResource Include="Resource.hu-HU.resx" />
     <EmbeddedResource Include="SuDokuMainForm.en.resx">
       <DependentUpon>SuDokuMainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SuDokuMainForm.hu-HU.resx">
-      <DependentUpon>SuDokuMainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SuDokuMainForm.hu.resx">
       <DependentUpon>SuDokuMainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SuDokuMainForm.resx">

@@ -122,11 +122,14 @@ namespace SuDoku {
 			GameParams gameParams=new GameParams();
 			const string pattern=@"^\[([^[]*)\]\s*(=((X)?([0-9]*)?[xX*]([0-9]*)))?\s*([#]([0-9]*))?\s*(;\s*(.*))?\s*$";
 			//	1 name
+			//		2 =dx*y
+			//		3 dx*y
 			//	4 diagonal
 			//	5 x
 			//	6 y
+			//		7 #n
 			//	8 level
-			//	9 ? comment
+			//		9 ;comment
 			// 10 comment
 			Match m=Regex.Match(gameid,pattern,RegexOptions.IgnoreCase);
 			gameParams.pIdline=gameid;
