@@ -84,6 +84,7 @@ namespace SuDoku {
 			if(!gameState) {		//	false=not gaming / true=gaming
 				//	not gaming - start game
 				buttonStartGame.Text="Játék leállítása";
+				buttonClearGame.Text="Lépés törlése";
 				comboGameType.Enabled=
 				numericLevel.Enabled=
 				comboGameName.Enabled=
@@ -93,6 +94,7 @@ namespace SuDoku {
 			} else {
 				//	gaming - stop game
 				buttonStartGame.Text="--> Játék indítása";
+				buttonClearGame.Text="Tábla törlése";
 				comboGameType.Enabled=
 				numericLevel.Enabled=
 				comboGameName.Enabled=
@@ -185,7 +187,17 @@ namespace SuDoku {
 		}
 		private void buttonTestGame_Click(object sender,EventArgs e) {
 			//	Test table
-			AnalyzeResult(solvetype.TESTRESULTS);
+			if(gameState) {		//	false=not gaming / true=gaming
+				//	here gaming
+				int nErr=gameTable.CheckTable(false);
+				if(nErr>0) {
+					//	error message
+				}
+			} else {
+				//	here not gaming, filling table
+				int nErr=gameTable.CheckTable(true);
+				pictureTable_Resize(null,null);
+			}
 		}
 		private void buttonResolveTable_Click(object sender,EventArgs e) {
 			AnalyzeResult(solvetype.MAKERESULT);
@@ -287,29 +299,32 @@ namespace SuDoku {
 				num=ShowNumpad(ptCell,item,false);
 				pictureTable.Focus();
 			}
-			int origState=0;
 			if(num>=0) {
 				if(!gameState) {		//	false=not gaming / true=gaming
-					//	here gaming
-					origState=1;
-				} else {
 					//	here not gaming
-					origState=0;
-					int indx=buttonList.FindIndex(ni => (ni[0]==xx)&&(ni[1]==yy));
-					//	Remove old cell from list
-					if(indx>=0) {
-						buttonList.RemoveAt(indx);
-					}
-					if(num>0) {
-						buttonList.Add(new int[] { xx,yy });
-					}
+					item.orig=1;
+					item.fixNum=num;
+					gameTable.ClearTableErrors();
+					int nerr=gameTable.CheckTable(true);
+					pictureTable_Resize(null,null);
+				} else {
+					//	here gaming
+					item.orig=0;
+					buttonList.Add(new int[] { xx,yy,item.fixNum });
+					item.fixNum=num;
 				}
-				item.fixNum=num;
-				item.orig=origState;
 				using(Graphics g=Graphics.FromImage(pictureTable.Image)) {
 					DrawCell(g,br,cellSize,gameTable.cell(xx,yy));
 				}
 				pictureTable.Refresh();
+				if((gameState)&&(gameTable.EndTest()<0)){
+					int nerr=gameTable.CheckTable(false);
+					if(nerr>0) {
+						MessageBox.Show("Hibás kitöltés!\r\nA tábla nincs jól megoldva!","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Error);
+					} else {
+						MessageBox.Show("Gratulálok!\r\nA tábla megoldva!","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+					}
+				}
 			}
 		}
 		int ShowNumpad(Point loc,GameCell item,bool all) {
@@ -375,8 +390,9 @@ namespace SuDoku {
 				int count=buttonList.Count;
 				if(count>0) {
 					count--;
-					gameTable.cell(buttonList[count][0],buttonList[count][1]).fixNum=0;
+					gameTable.cell(buttonList[count][0],buttonList[count][1]).fixNum=buttonList[count][2];
 					buttonList.RemoveAt(count);
+					pictureTable_Resize(null,null);
 				}
 			}
 		}
@@ -399,19 +415,19 @@ namespace SuDoku {
 				gameTable.InitTable(pars.x,pars.y);
 			}
 			for(int yy=0; yy<pars.size; yy++) {
-				string rowLine=GameFile.GetGameRow(gameIndex,yy+1);
+				string rowLine=GameFile.GetGameRow(gameIndex,yy);
 				gameTable.FillTableRow(yy,((rowLine.Length>0)&&(rowLine[0]!='*'))?rowLine:"");
 			}
-			gameTable.CheckTable();
+			int nErr=gameTable.CheckTable(true);
 			pictureTable_Resize(null,null);
-			int errnum=gameTable.CheckTable();
+			//int errnum=gameTable.CheckTable(true);
 		}
 		private void buttonFillGame_Click(object sender,EventArgs e) {
 			MessageBox.Show("Ez még nincs kész!!","Kitöltés",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
 		}
 		#endregion
 
-
+		#region XXXX
 		private void buttonSaveGame_Click(object sender,EventArgs e) {
 			string gameName=textGameName.Text;
 			if(string.IsNullOrWhiteSpace(gameName)) {
@@ -504,5 +520,6 @@ namespace SuDoku {
 				chlang.ApplyLanguageToForm(this);
 			}
 		}
+		#endregion
 	}
 }

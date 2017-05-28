@@ -95,7 +95,7 @@ namespace SuDoku {
 
 		public int EndTest() {
 #if DEBUG
-			return cellList.FindLastIndex(x => x.fixbitnum==0);
+			return cellList.FindLastIndex(x => x.fixNum==0);
 #else
 			return cellList.FindIndex(x => x.fixbitnum==0);
 #endif
@@ -173,14 +173,29 @@ namespace SuDoku {
 		//------------------------------------------------------
 		//	Checking table errors
 		//------------------------------------------------------
-		public int CheckTable() {
+		public int CheckTable(bool flag) {
+			//	flag=false	only result need
+			//		=true	show problems
 			int errs=0;
 			for(int ii=0; ii<cellList.Count; ii++) {
-				CellResult rerr=CountCellFlag(cellList[ii]);
-				if(rerr.errList.Count>0)
+				CellResult lErr=CountCellFlag(cellList[ii]);
+				if(lErr.errList.Count>0) {
 					errs++;
+					if(flag) {
+						cell(ii).imposs=1;
+						foreach(int[] ee in lErr.errList) {
+							cell(ee[0],ee[1]).imposs=1;
+						}
+					}
+				}
 			}
 			return errs;
+		}
+		public void ClearTableErrors() {
+			List<GameCell> errs=cellList.FindAll(x => x.imposs==1);
+			foreach(GameCell cell in errs) {
+				cell.imposs=0;
+			}
 		}
 
 		//------------------------------------------------------

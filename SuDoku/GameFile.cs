@@ -109,12 +109,13 @@ namespace SuDoku {
 			return GetGameParameters(indx);
 		}
 		public static string GetGameRow(int gIndx,int rIndx) {
+			rIndx++;
 			return (listGames[gIndx].Count<=rIndx)?"*":listGames[gIndx][rIndx];
 		}
 		public static GameParams GetGameParameters(int indx) {
 			if(indx<0)
 				return null;
-			string gameid=GetGameRow(indx,0);
+			string gameid=listGames[indx][0];
 			return GetGameID(gameid);
 		}
 		public static GameParams GetGameID(string gameid) {

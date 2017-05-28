@@ -52,6 +52,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="GameFile.cs" />
     <Compile Include="LanguageChange.cs" />
+    <Compile Include="HandleGameArchive.cs" />
     <Compile Include="SuSolve.cs">
       <SubType>Form</SubType>
     </Compile>
