@@ -141,33 +141,33 @@ Túl kevés kitöltött cellát tartalmaz!</value>
     <comment>{0} - a megoldások darabszáma</comment>
   </data>
   <data name="MB_msg_NOresult" xml:space="preserve">
-    <value>A tábla nem oldható meg</value>
+    <value>A tábla nem oldható meg!</value>
   </data>
   <data name="MB_msg_result" xml:space="preserve">
-    <value>A tábla megoldása
+    <value>A tábla megoldása,
 Befejezem</value>
   </data>
   <data name="MB_msg_stopped" xml:space="preserve">
     <value>A művelet leállítva</value>
-  </data>
-  <data name="MB_msgMANYresult" xml:space="preserve">
-    <value>Legalább {0} megoldás van!</value>
-    <comment>{0} - a maximális  megoldásszám</comment>
   </data>
   <data name="MB_msg_ERRresult" xml:space="preserve">
     <value>A megoldás nem jó!
 Hibás a kitöltés!</value>
   </data>
   <data name="MB_msg_errtable" xml:space="preserve">
-    <value>A tábla hibás, nem megoldható
+    <value>A tábla hibás, nem oldható meg
 Javítsa ki!</value>
+  </data>
+  <data name="MB_msg_MANYresult" xml:space="preserve">
+    <value>Legalább {0} megoldás van!</value>
+    <comment>{0} - a maximális  megoldásszám</comment>
   </data>
   <data name="MB_msg_MISSname" xml:space="preserve">
     <value>A játék nevet ki kell tölteni!</value>
   </data>
   <data name="MB_msg_OKresult" xml:space="preserve">
-    <value>Gratulálok!
-A tábla megoldva!</value>
+    <value>Gratulálok,
+Jó megoldás!</value>
   </data>
   <data name="MB_msg_solvable" xml:space="preserve">
     <value>A tábla megoldható!</value>

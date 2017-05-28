@@ -149,10 +149,6 @@ I will close the play</value>
   <data name="MB_msg_stopped" xml:space="preserve">
     <value>Operation stopped</value>
   </data>
-  <data name="MB_msgMANYresult" xml:space="preserve">
-    <value>At least {0} result exists!</value>
-    <comment>{0} - maximális megoldásszám</comment>
-  </data>
   <data name="MB_msg_ERRresult" xml:space="preserve">
     <value>Defected solution!</value>
   </data>
@@ -160,9 +156,13 @@ I will close the play</value>
     <value>Defected, unsolvable table
 Repare it!</value>
   </data>
+  <data name="MB_msg_MANYresult" xml:space="preserve">
+    <value>At least {0} result exists!</value>
+    <comment>{0} - maximális megoldásszám</comment>
+  </data>
   <data name="MB_msg_MISSname" xml:space="preserve">
     <value>Game name is empty
-Fill it please!!</value>
+Fill it please!</value>
   </data>
   <data name="MB_msg_OKresult" xml:space="preserve">
     <value>Congratulation!

@@ -33,7 +33,7 @@ namespace SuDoku {
 		public int pLevel { get { return Int32.Parse(tlevel);} }
 	}
 	class GameFile {
-		static List<List<string>> listGames=null;
+		static List<List<string>> listGames=new List<List<string>>();
 		static List<string> listItem=null;
 		static GameLineType gameItemType;
 		static int getGameIndex=-1;
@@ -41,7 +41,7 @@ namespace SuDoku {
 		static int putGameIndex=-1;
 
 		static public void InitList(){
-			listGames=new List<List<string>>();
+			//listGames=new List<List<string>>();
 			gameItemType=GameLineType.none;
 		}
 
@@ -151,16 +151,20 @@ namespace SuDoku {
 			}
 			return listNames;
 		}
-		static public void AddGame(int mode,string line) {
-			List<string> game=new List<string>();
+		static public int AddGame(int gameindex,int mode,string line) {
 			if(mode==0){
-				putGameIndex=SearchGame(line);
-				if(putGameIndex<0) {
-					putGameIndex=listGames.Count;
+				List<string> game=new List<string>();
+				if(gameindex<0) {
+					//	new game
+					gameindex=listGames.Count;
 					listGames.Add(game);
+				} else {
+					//	replace old game
+					listGames[gameindex]=game;
 				}
 			}
-			listGames[putGameIndex].Add(line);
+			listGames[gameindex].Add(line);
+			return gameindex;
 		}
 		static public string ReadGame(string gamename) {
 			if(!string.IsNullOrWhiteSpace(gamename)) {

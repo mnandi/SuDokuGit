@@ -445,7 +445,7 @@ namespace SuDoku {
 														actGameDef.gtabSize,
 														numericLevel.Value,
 														textGameComment.Text);
-				GameFile.AddGame(0,oLine);
+				gameIndex=GameFile.AddGame(gameIndex,0,oLine);
 				int ch0=(gameTable.tabSize>9)?Constants.chrBase:Constants.numBase;	//	show '1' if table <= 3x3 else 'A'
 				for(int ii=0; ii<gameTable.tabSize; ii++) {
 					oLine="";
@@ -453,9 +453,9 @@ namespace SuDoku {
 						int num=gameTable.cell(jj,ii).fixNum;
 						oLine+=((char)((num>0)?(num+ch0):0x20)).ToString();
 					}
-					GameFile.AddGame(1,oLine);
+					GameFile.AddGame(gameIndex,1,oLine);
 				}
-				GameFile.AddGame(2,"*");
+				GameFile.AddGame(gameIndex,2,"*");
 			}
 		}
 		private void buttonSaveFile_Click(object sender,EventArgs e) {
