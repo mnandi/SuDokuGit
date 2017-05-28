@@ -47,6 +47,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="GameList.cs" />
+    <Compile Include="GameTable.cs" />
     <Compile Include="NumPad.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -61,6 +63,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SuCheck.cs" />
     <Compile Include="SuSolve.cs" />
     <EmbeddedResource Include="NumPad.resx">
       <DependentUpon>NumPad.cs</DependentUpon>

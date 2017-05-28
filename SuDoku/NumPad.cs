@@ -13,11 +13,12 @@ namespace SuDoku {
 		public long numMask=0;
 		public int numButton=-1;
 		public NumPad(GameItem itm,GameDef def,bool mode) {
-			//	mode=false - show only available
+			//	all	=true  - left button	- view all num
+			//		=false - right button	- view available nums
 			InitializeComponent();
 
 			item=itm;
-			SuSolve.CheckValues(item);
+			List<int[]> errList=SuCheck.CheckValues(item);
 			int nC=Math.Max(def.xCells,def.yCells);
 			int nR=Math.Min(def.xCells,def.yCells);
 
@@ -34,8 +35,10 @@ namespace SuDoku {
 					int num=yy*nC+xx;
 					butt.Text=((char)(num+((SuDokuForm.tableSize>=10)?0x41:0x31))).ToString();
 					butt.Tag=num+1;
-					if((item.vFlag&((long)1<<num+1))!=0)
-						butt.Enabled=false;
+					if(!mode) {
+						if((item.vFlag&((long)1<<num+1))!=0)
+							butt.Enabled=false;
+					}
 					butt.Click+=new System.EventHandler(this.button_Click);
 					butt.DialogResult=DialogResult.OK;
 					this.Controls.Add(butt);
@@ -68,7 +71,7 @@ namespace SuDoku {
 				} else {
 					numMask=(1<<numButton);
 				}
-				SuSolve.CheckValues(item);
+				List<int[]> errList=SuCheck.CheckValues(item);
 			}
 		}
 	}

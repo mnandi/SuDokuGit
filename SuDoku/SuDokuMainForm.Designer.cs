@@ -28,7 +28,6 @@
 			this.panelControl = new System.Windows.Forms.Panel();
 			this.textTimer = new System.Windows.Forms.TextBox();
 			this.textGameComment = new System.Windows.Forms.TextBox();
-			this.textGameName = new System.Windows.Forms.TextBox();
 			this.label4 = new System.Windows.Forms.Label();
 			this.label3 = new System.Windows.Forms.Label();
 			this.numericLevel = new System.Windows.Forms.NumericUpDown();
@@ -42,6 +41,7 @@
 			this.buttonExit = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.comboGameType = new System.Windows.Forms.ComboBox();
+			this.comboGameName = new System.Windows.Forms.ComboBox();
 			this.panelTiles.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureTable)).BeginInit();
 			this.panelControl.SuspendLayout();
@@ -77,9 +77,9 @@
 			// 
 			this.panelControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.panelControl.Controls.Add(this.comboGameName);
 			this.panelControl.Controls.Add(this.textTimer);
 			this.panelControl.Controls.Add(this.textGameComment);
-			this.panelControl.Controls.Add(this.textGameName);
 			this.panelControl.Controls.Add(this.label4);
 			this.panelControl.Controls.Add(this.label3);
 			this.panelControl.Controls.Add(this.numericLevel);
@@ -114,13 +114,6 @@
 			this.textGameComment.Name = "textGameComment";
 			this.textGameComment.Size = new System.Drawing.Size(269, 22);
 			this.textGameComment.TabIndex = 14;
-			// 
-			// textGameName
-			// 
-			this.textGameName.Location = new System.Drawing.Point(20, 337);
-			this.textGameName.Name = "textGameName";
-			this.textGameName.Size = new System.Drawing.Size(270, 22);
-			this.textGameName.TabIndex = 13;
 			// 
 			// label4
 			// 
@@ -184,6 +177,7 @@
 			this.buttonTest.TabIndex = 6;
 			this.buttonTest.Text = "Tábla tesztelése";
 			this.buttonTest.UseVisualStyleBackColor = true;
+			this.buttonTest.Click += new System.EventHandler(this.buttonTest_Click);
 			// 
 			// buttonLoad
 			// 
@@ -242,6 +236,14 @@
 			this.comboGameType.TabIndex = 0;
 			this.comboGameType.SelectedIndexChanged += new System.EventHandler(this.comboGameType_SelectedIndexChanged);
 			// 
+			// comboGameName
+			// 
+			this.comboGameName.FormattingEnabled = true;
+			this.comboGameName.Location = new System.Drawing.Point(20, 335);
+			this.comboGameName.Name = "comboGameName";
+			this.comboGameName.Size = new System.Drawing.Size(269, 24);
+			this.comboGameName.TabIndex = 16;
+			// 
 			// SuDokuForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -268,7 +270,6 @@
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.ComboBox comboGameType;
 		private System.Windows.Forms.TextBox textGameComment;
-		private System.Windows.Forms.TextBox textGameName;
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.NumericUpDown numericLevel;
@@ -282,6 +283,7 @@
 		private System.Windows.Forms.Button buttonExit;
 		private System.Windows.Forms.PictureBox pictureTable;
 		private System.Windows.Forms.TextBox textTimer;
+		private System.Windows.Forms.ComboBox comboGameName;
 	}
 }
 

@@ -11,10 +11,11 @@ namespace SuDoku {
 	public class GameItem {
 		public int px=0;			//	cell X coord
 		public int py=0;			//	cell Y coord
-		public long vFlag=0;		//	available bit mask
+		public int occNum=0;		//	nbr of occupied values
 		public int actNum=0;		//	cell value: 0=empty
 		public long actFlag=0;		//	numeric bit mask
-		public GameItem(int x,int y){
+		public long vFlag=0;		//	available bit mask
+		public GameItem(int x,int y) {
 			px=x;
 			py=y;
 		}
