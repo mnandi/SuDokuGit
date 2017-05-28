@@ -18,8 +18,6 @@ namespace SuDoku {
 
 	public partial class SuDokuForm: Form {
 		#region Common data
-		const int cellOffs=2;		//	pixels between neighbouring cells
-		const int groupOffs=2;		//	Extra plus pixels between neighbouring cell groups
 		static readonly Color borderColor=Color.Black;			//	Cell border
 		static readonly Color textColor=Color.Blue;				//	Cell number
 		static readonly Color back0Color=Color.White;			//	Default
@@ -28,7 +26,7 @@ namespace SuDoku {
 		static readonly Color back3Color=Color.PaleGoldenrod;	//	Error
 		static public GameDef actGameDef=null;				//	Actual game definition
 		static public int tableSize;						//	tablesize of actual game
-		static public GameItem[,] gameTable;				//	Actual game table
+		static public GameTable gameTable;				//	Actual game table
 		static public List<GameItem[,]> gameQueue;			//	Previous game tables
 		static SolidBrush br=new SolidBrush(borderColor);	//	Draw rectangle border
 		static SolidBrush bn=new SolidBrush(textColor);		//	Item text color
@@ -58,15 +56,15 @@ namespace SuDoku {
 			gameTimer.Enabled=true;
 		}
 
-		private void buttonGame_Click(object sender,EventArgs e) {
+		private void buttonStartGame_Click(object sender,EventArgs e) {
 			if(!gameState) {
-				buttonGame.Text="Játék leállítása";
+				buttonStartGame.Text="Játék leállítása";
 				comboGameType.Enabled=
 				numericLevel.Enabled=
 				comboGameName.Enabled=
 				textGameComment.Enabled=false;
 			} else {
-				buttonGame.Text="--> Játék indítása";
+				buttonStartGame.Text="--> Játék indítása";
 				comboGameType.Enabled=
 				numericLevel.Enabled=
 				comboGameName.Enabled=
@@ -105,18 +103,13 @@ namespace SuDoku {
 
 		}
 		void InitSuDokuTable(GameDef game){
-			gameTable=new GameItem[game.xCells*game.yCells,game.xCells*game.yCells];
-			for(int xx=0; xx<game.xCells*game.yCells; xx++) {
-				for(int yy=0; yy<game.xCells*game.yCells; yy++) {
-					gameTable[xx,yy]=new GameItem(xx,yy);
-				}
-			}
+			gameTable=new GameTable(game.xCells,game.yCells);
 			pictureTable_Resize(null,null);
 		}
 		void RedrawTable() {
 			tableSize=actGameDef.xCells*actGameDef.yCells;
-			int cellSizX=pictureTable.Width-((tableSize+1)*cellOffs+(actGameDef.yCells-1)*groupOffs);
-			int cellSizY=pictureTable.Height-((tableSize+1)*cellOffs+(actGameDef.xCells-1)*groupOffs);
+			int cellSizX=pictureTable.Width-((tableSize+1)*Constants.cellOffs+(actGameDef.yCells-1)*Constants.groupOffs);
+			int cellSizY=pictureTable.Height-((tableSize+1)*Constants.cellOffs+(actGameDef.xCells-1)*Constants.groupOffs);
 			cellSize=Math.Min(cellSizX,cellSizY)/tableSize;
 			//cellSize=(Math.Min(pictureTable.Width,pictureTable.Height)-3*tableSize)/tableSize;
 			int cellsSiz=tableSize*cellSize;
@@ -127,21 +120,21 @@ namespace SuDoku {
 				pictureTable.Image=new Bitmap(pictureTable.Width,pictureTable.Height);	//	bitmap of table
 			numFont=new Font("Arial",cellSize,FontStyle.Bold,GraphicsUnit.Pixel);
 			using(Graphics g=Graphics.FromImage(pictureTable.Image)) {
-				for(int xx=0; xx<actGameDef.xCells*actGameDef.yCells; xx++) {
-					for(int yy=0; yy<actGameDef.xCells*actGameDef.yCells; yy++) {
-						DrawCell(g,br,cellSize,gameTable[xx,yy]);
+				for(int yy=0; yy<actGameDef.xCells*actGameDef.yCells; yy++) {
+					for(int xx=0; xx<actGameDef.xCells*actGameDef.yCells; xx++) {
+						DrawCell(g,br,cellSize,gameTable.item(xx,yy));
 					}
 				}
 			}
 		}
 		int SetLeft(int xp,int siz) {
-			return baseX+xp*(siz+cellOffs)+(xp/actGameDef.xCells)*groupOffs;
+			return baseX+xp*(siz+Constants.cellOffs)+(xp/actGameDef.xCells)*Constants.groupOffs;
 		}
 		int SetTop(int yp,int siz) {
-			return baseY+yp*(siz+cellOffs)+(yp/actGameDef.yCells)*groupOffs;
+			return baseY+yp*(siz+Constants.cellOffs)+(yp/actGameDef.yCells)*Constants.groupOffs;
 		}
 		void DrawCell(Graphics g,Brush br,int size,GameItem item) {
-			Rectangle rect=new Rectangle(SetLeft(item.px,size),SetTop(item.py,size),size,size);
+			Rectangle rect=new Rectangle(SetLeft(item.cx,size),SetTop(item.cy,size),size,size);
 			g.FillRectangle(bf,rect);
 			g.DrawRectangle(new Pen(br),rect);
 			if(item.actNum>0) {
@@ -170,7 +163,7 @@ namespace SuDoku {
 			while(SetTop(yy,cellSize)>e.Y)	yy--;
 			if((yy<0)||(yy>=tableSize))
 				return;
-			item=gameTable[xx,yy];
+			item=gameTable.item(xx,yy);
 			int num;
 			int x=SetLeft(xx,cellSize)+cellSize*7/10;
 			int y=SetTop(yy,cellSize)+cellSize*7/10;
@@ -183,7 +176,7 @@ namespace SuDoku {
 			if((num>=0)&&(item.actNum!=num)) {
 				item.actNum=num;
 				using(Graphics g=Graphics.FromImage(pictureTable.Image)) {
-					DrawCell(g,br,cellSize,gameTable[xx,yy]);
+					DrawCell(g,br,cellSize,gameTable.item(xx,yy));
 				}
 				pictureTable.Refresh();
 			}
@@ -203,20 +196,20 @@ namespace SuDoku {
 		//	Save file handling
 		//======================================
 		private void buttonAddGame(){
-			string oLine=string.Format("[{0}]\t={1};\t{2}",comboGameName.Text,comboGameType.Text,textGameComment.Text);
+			string oLine=string.Format("[{0}]\t={1}{2}x{3}\t	#{4};\t{5}",comboGameName.Text,comboGameType.Text,textGameComment.Text);
 			GameList.AddGame(0,oLine);
 			int ch0=(tableSize>9)?0x40:0x30;
 			for(int ii=0; ii<tableSize; ii++) {
 				oLine="";
 				for(int jj=0; jj<tableSize; jj++) {
-					int num=gameTable[jj,ii].actNum;
+					int num=gameTable.item(jj,ii).actNum;
 					oLine+=((char)((num>0)?(num+ch0):0x20)).ToString();
 				}
 				GameList.AddGame(1,oLine);
 			}
 			GameList.AddGame(2,"*");
 		}
-		private void buttonSave_Click(object sender,EventArgs e) {
+		private void buttonSaveFile_Click(object sender,EventArgs e) {
 			OpenFileDialog saveFileDlg=new OpenFileDialog();
 			saveFileDlg.InitialDirectory=".\\";
 			saveFileDlg.Filter="txt files (*.txt)|*.txt|All files (*.*)|*.*";
@@ -226,24 +219,29 @@ namespace SuDoku {
 				GameList.SaveFile(saveFileDlg.FileName);
 			}
 		}
-		private void buttonLoad_Click(object sender,EventArgs e) {
+		private void buttonLoadFile_Click(object sender,EventArgs e) {
 			OpenFileDialog loadFileDlg=new OpenFileDialog();
 			loadFileDlg.InitialDirectory=".\\";
 			loadFileDlg.Filter="txt files (*.txt)|*.txt|All files (*.*)|*.*";
 			loadFileDlg.FilterIndex=2;
 			loadFileDlg.RestoreDirectory=true;
 			if(loadFileDlg.ShowDialog()==DialogResult.OK) {
-				GameList.LoadFile(loadFileDlg.FileName);
+				List<string> names=GameList.LoadFile(loadFileDlg.FileName);
+				if(names.Count>0) {
+					comboGameName.Items.Clear();
+					comboGameName.Items.AddRange(names.ToArray());
+					comboGameName.SelectedIndex=0;
+				}
 			}
 		}
 		#endregion
 
-		private void buttonTest_Click(object sender,EventArgs e) {
+		private void buttonTestGame_Click(object sender,EventArgs e) {
 			int conflictNb=0;
 			int conflictAll=0;
-			for(int xx=0; xx<tableSize; xx++) {
-				for(int yy=0; yy<tableSize; yy++) {
-					GameItem item=gameTable[xx,yy];
+			for(int yy=0; yy<tableSize; yy++) {
+				for(int xx=0; xx<tableSize; xx++) {
+					GameItem item=gameTable.item(xx,yy);
 					if(item.actNum<1)
 						continue;
 					List<int[]> errors=SuCheck.CheckValues(item);
@@ -253,10 +251,42 @@ namespace SuDoku {
 					conflictNb++;
 					conflictAll+=errCount;
 					for(int ii=0; ii<errCount; ii++) {
-						//	Show conflicts
+						//?	Show conflicts
 					}
 				}
 			}
+		}
+
+		private void buttonClearGame_Click(object sender,EventArgs e) {
+			gameTable.ClearTable();
+			pictureTable_Resize(null,null);
+		}
+
+		private void buttonFillGame_Click(object sender,EventArgs e) {
+
+		}
+
+		private void comboGameName_SelectedIndexChanged(object sender,EventArgs e) {
+			int gameIndex=GameList.GetGameIndex((string)comboGameName.Items[comboGameName.SelectedIndex]);
+			GameParams pars=GameList.GetGameParameters(gameIndex);
+			comboGameType.Text=string.Format("={0}{1}*{1}\t({2}*{3})",(pars.diag!=0)?"X":"",pars.x*pars.y,pars.x,pars.y);
+			numericLevel.Value=pars.level;
+			textGameComment.Text=pars.comment;
+			if((actGameDef.xCells!=pars.x)||(actGameDef.yCells!=pars.y)||(actGameDef.xCross!=pars.diag)) {
+				actGameDef=new GameDef(pars.x,pars.y,pars.diag,comboGameType.Text);
+				gameTable.InitTable(pars.x,pars.y);
+				//pictureTable_Resize(null,null);
+			}
+			for(int yy=0; yy<pars.size; yy++) {
+				string rowLine=GameList.GetGameRow(gameIndex,yy+1);
+				gameTable.FillTableRow(yy,rowLine);
+			}
+			pictureTable_Resize(null,null);
+			int errnum=gameTable.CheckTable();
+		}
+
+		private void buttonExit_Click(object sender,EventArgs e) {
+			this.Close();
 		}
 	}
 }

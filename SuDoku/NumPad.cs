@@ -10,7 +10,7 @@ using System.Windows.Forms;
 namespace SuDoku {
 	public partial class NumPad: Form {
 		GameItem item;
-		public long numMask=0;
+		public int numMask=0;
 		public int numButton=-1;
 		public NumPad(GameItem itm,GameDef def,bool mode) {
 			//	all	=true  - left button	- view all num
@@ -36,7 +36,7 @@ namespace SuDoku {
 					butt.Text=((char)(num+((SuDokuForm.tableSize>=10)?0x41:0x31))).ToString();
 					butt.Tag=num+1;
 					if(!mode) {
-						if((item.vFlag&((long)1<<num+1))!=0)
+						if((item.vFlag&(1<<(num+1)))!=0)
 							butt.Enabled=false;
 					}
 					butt.Click+=new System.EventHandler(this.button_Click);

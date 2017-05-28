@@ -13,6 +13,23 @@ namespace SuDoku {
 		game,
 		end,
 	}
+	class GameParams{
+		public string name="";
+		public int diag=0;
+		public string tx="3";
+		public string ty="3";
+		public string tlevel="0";
+		public string comment="";
+		public GameParams() {
+		}
+		public GameParams(string nam) {
+			name=nam;
+		}
+		public int size { get { return x*y;} }
+		public int x { get { return Int32.Parse(tx);} }
+		public int y { get { return Int32.Parse(ty);} }
+		public int level { get { return Int32.Parse(tlevel);} }
+	}
 	class GameList {
 		static List<List<string>> listGames=null;
 		static List<string> listItem=null;
@@ -27,7 +44,8 @@ namespace SuDoku {
 		}
 
 		#region Saving / Loading file
-		static public void LoadFile(string filename) {
+		static public List<string> LoadFile(string filename) {
+			List<string> gameNames=new List<string>();
 			using(StreamReader iStream=new StreamReader(filename,true)) {
 				try {
 					string iLine;
@@ -40,6 +58,11 @@ namespace SuDoku {
 						}
 						if(iLine[0]=='[') {
 							regular=GameLineType.game;
+							const string pattern=@"^\[([^[]*)\].*$";
+							Match m=Regex.Match(iLine,pattern,RegexOptions.IgnoreCase);
+							//if(!m.Success)
+							//	return -1;
+							gameNames.Add(m.Groups[1].Value);		//	Extract "[...]" from string
 						}
 						GameList.AddLine(regular,iLine);
 					}
@@ -49,6 +72,7 @@ namespace SuDoku {
 					//MessageBox.Show(msg);
 				}
 			}
+			return gameNames;
 		}
 		static public void SaveFile(string filename) {
 			try {
@@ -65,6 +89,39 @@ namespace SuDoku {
 				string msg="Error: Could not read file from disk. Original error: "+ex.Message;
 				//MessageBox.Show(msg);
 			}
+		}
+		public static int GetGameIndex(string game) {
+			return SearchGame(game);
+		}
+		public static GameParams GetGameParameters(string game) {
+			int indx=GetGameIndex(game);
+			return GetGameParameters(indx);
+		}
+		public static string GetGameRow(int gIndx,int rIndx) {
+			return listGames[gIndx][rIndx];
+		}
+		public static GameParams GetGameParameters(int indx) {
+			if(indx<0)
+				return null;
+			GameParams gameParams=new GameParams();
+			string gameid=GetGameRow(indx,0);
+			const string pattern=@"^\[([^[]*)\]\s*=((X)?([0-9]*)?[xX*]([0-9]*))?\s*([#]([0-9]*))?\s*;(.*)?\s*$";
+			//	1 name
+			//	2 diagonal
+			//	3 x
+			//	4 y
+			//	5 level
+			//	6 comment
+			Match m=Regex.Match(gameid,pattern,RegexOptions.IgnoreCase);
+			//if(!m.Success)
+			//	return null;
+			gameParams.name=m.Groups[1].Value;		//	Extract "[...]" from string
+			gameParams.diag=(string.IsNullOrWhiteSpace(m.Groups[3].Value)?(int)GameType.NODIAGGAME:(int)GameType.DIAGGAME);
+			gameParams.tx=m.Groups[4].Value;		//	Extract "=X*y" from string
+			gameParams.ty=m.Groups[5].Value;		//	Extract "=n*Y" from string
+			gameParams.tlevel=m.Groups[7].Value;	//	Extract "=N" from string
+			gameParams.comment=m.Groups[8].Value;	//	Extract "; XXXX" from string
+			return gameParams;
 		}
 		#endregion
 
@@ -104,14 +161,11 @@ namespace SuDoku {
 
 		#region Internal routines
 		static int SearchGame(string gamename){
-			const string pattern=@"^(\[[^[]).*$";
-			Match m=Regex.Match(gamename,pattern,RegexOptions.IgnoreCase);
-			if(!m.Success)
-				return -1;
-			string name=m.Groups[0].Value;		//	Extract "[...]" from string
+			const string pattern=@"^\[([^]]*)\].*$";
 			for(int ii=0; ii<listGames.Count; ii++) {
-				Match l=Regex.Match(listGames[ii][0],pattern,RegexOptions.IgnoreCase);
-				if(l.Groups[0].Value==name)
+				string line=listGames[ii][0];
+				Match l=Regex.Match(line,pattern,RegexOptions.IgnoreCase);
+				if(l.Groups[1].Value==gamename)
 					return ii;
 			}
 			return -1;
