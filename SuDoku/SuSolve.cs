@@ -20,6 +20,7 @@ namespace SuDoku {
 		TESTRESULTS
 	};
 	enum sresult {
+		SOLVE_FEWDATA=-4,
 		SOLVE_CANCELLED=-3,
 		SOLVE_IMPOSSIBLE=-2,//		"Lehetetlen megoldás"
 		SOLVE_OK=-1,		//	-1	"Jó megoldás !"
@@ -169,6 +170,8 @@ BackStep:			//	Hiba, visszalépni majd következõ próbát keresni
 				trynb++;
 				textTryNb.Text=trynb.ToString();
 				textTryNb.Refresh();
+				if(trynb>10000)
+					return sresult.SOLVE_FEWDATA;
 				tableQueue.Push(gameTable);
 				gameTable.y=
 				gameTable.x=-1;
@@ -235,7 +238,7 @@ EndSearch:	//	Searches the 1st best case
 					val=gameTable.CountCellFlag(ix,iy);	//	val: Impossibles in ix,iy
 					if((val&gameTable.cell(ix,iy).fixbitnum)!=0) {
 						if((gameTable.cell(ix,iy).orig==0)||(gameState==false)) {
-							gameTable.cell(ix,iy).selected=1;
+							//gameTable.cell(ix,iy).selected=1;
 							gameTable.cell(ix,iy).imposs=1;
 						}
 						flg=1;
@@ -287,7 +290,7 @@ EndSearch:	//	Searches the 1st best case
 				case 0:		//	Wrong table (no possible value for cell)
 					return -1;
 				case 1:		//	Only one possible number exist
-OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
+OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.gSumask));
 					gameTable.cell(x,y).cannum=0;
 					return 1;	//	fixed a new number
 				default:	//	Set the cell possible values
@@ -295,13 +298,13 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 					//	returns with bit list of possible cell values
 					if(lst!=0) {
 						if(CountBits(lst)==1) {
-							val=(~lst)&actGameDef.sumask;
+							val=(~lst)&actGameDef.gSumask;
 							goto OnlyOne;
 						} else {
 							//	More than one fixable
 						}
 					}
-					gameTable.cell(x,y).cannum=(~val&actGameDef.sumask);
+					gameTable.cell(x,y).cannum=(~val&actGameDef.gSumask);
 					return 0;	//	only possible values exist
 			}
 		}
@@ -314,15 +317,15 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 			int val=gameTable.CountCellFlag(x,y);		//	val: Impossibles in iy,ix
 			int fix=TestList(x,y,0);	//
 			if((val&fix)!=0)
-				return actGameDef.sumask;
+				return actGameDef.gSumask;
 			switch(CountBits(fix)) {
 				case 0:
 					break;
 				case 1:
-					return (~fix)&actGameDef.sumask;
+					return (~fix)&actGameDef.gSumask;
 				default:
 					gameTable.cell(x,y).imposs=1;
-					return actGameDef.sumask;
+					return actGameDef.gSumask;
 			}
 			return val;
 		}
@@ -334,12 +337,12 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 			//	returns with bit list of possible cell values of x,y cell
 			int ix,iy,iz,nn;
 			int ret=0;
-			int y0=y/actGameDef.yCells*actGameDef.yCells;
-			int x0=x/actGameDef.xCells*actGameDef.xCells;
+			int y0=(y/actGameDef.gyCells)*actGameDef.gyCells;
+			int x0=(x/actGameDef.gxCells)*actGameDef.gxCells;
 
 			//	Counts the filled cells in a block column
 			int yval=val;
-			for(nn=0,iy=y0+actGameDef.yCells; --iy>=y0; ) {
+			for(nn=0,iy=y0+actGameDef.gyCells; --iy>=y0; ) {
 				if(iy==y)
 					continue;				//	skips the actual cell
 				int cellv;
@@ -348,7 +351,7 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 					yval|=cellv;			//	set if own block line
 				}
 			}
-			if(nn==(actGameDef.yCells-1)) {
+			if(nn==(actGameDef.gyCells-1)) {
 				//	if only y,x isn't filled
 				for(iz=gameTable.tabSize+1; (--iz)>0; ) {
 					int sunum=NumToBit(iz);
@@ -356,17 +359,17 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 						continue;			//	skips the not asked values
 					nn=0;
 					//	Counts the value in other lines
-					for(ix=x0+actGameDef.xCells; --ix>=x0; ) {
+					for(ix=x0+actGameDef.gxCells; --ix>=x0; ) {
 						if(ix==x)
 							continue;		//	skips the actual line
 						for(iy=gameTable.tabSize; (iy--)>0; ) {
-							if((iy>=y0)&&(iy<(y0+actGameDef.yCells)))
+							if((iy>=y0)&&(iy<(y0+actGameDef.gyCells)))
 								continue;	//	skip in own bloxk
 							if(gameTable.cell(ix,iy).fixbitnum==sunum)
 								nn++;
 						}
 					}
-					if(nn>=(actGameDef.xCells-1)) {
+					if(nn>=(actGameDef.gxCells-1)) {
 						//	if all other columns has the actual valus
 						ret|=sunum;
 					}
@@ -375,7 +378,7 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 
 			//	Counts the filled cells in a block line
 			int xval=val;
-			for(nn=0,ix=x0+actGameDef.xCells; --ix>=x0; ) {
+			for(nn=0,ix=x0+actGameDef.gxCells; --ix>=x0; ) {
 				if(ix==x)
 					continue;				//	skips the actual cell
 				int cellv;
@@ -384,7 +387,7 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 					xval|=cellv;			//	set if own block line
 				}
 			}
-			if(nn==(actGameDef.xCells-1)) {
+			if(nn==(actGameDef.gxCells-1)) {
 				//	if only y,x isn't filled
 				for(iz=gameTable.tabSize+1; (--iz)>0; ) {
 					int sunum=NumToBit(iz);
@@ -392,17 +395,17 @@ OnlyOne:			gameTable.cell(x,y).fixNum=BitToNum((~val&actGameDef.sumask));
 						continue;			//	skips the not asked values
 					nn=0;
 					//	Counts the value in other columns
-					for(iy=y0+actGameDef.yCells; --iy>=y0; ) {
+					for(iy=y0+actGameDef.gyCells; --iy>=y0; ) {
 						if(iy==y)
 							continue;		//	skips the actual column
 						for(ix=gameTable.tabSize; (ix--)>0; ) {
-							if((ix>=x0)&&(ix<(x0+actGameDef.xCells)))
+							if((ix>=x0)&&(ix<(x0+actGameDef.gxCells)))
 								continue;	//	skip in own bloxk
 							if(gameTable.cell(ix,iy).fixbitnum==sunum)
 								nn++;
 						}
 					}
-					if(nn>=(actGameDef.yCells-1)) {
+					if(nn>=(actGameDef.gyCells-1)) {
 						//	if all other columns has the actual valus
 						ret|=sunum;
 					}

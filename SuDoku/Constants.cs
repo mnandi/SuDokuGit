@@ -12,18 +12,18 @@ namespace SuDoku {
 		SUSIZEMX=25,   //   Maximal dimension of SuDoku board
 	}
 	public class GameDef {
-		public readonly int xCells;		//	group columns
-		public readonly int yCells;		//	group rows
-		public readonly int xCross;		//	game type: 0=normal, 1=cross
-		public readonly string gName;	//	game type name
-		public int sumask;
-		public int tableSize { get { return xCells*yCells; } }
+		public readonly int gxCells;		//	group columns
+		public readonly int gyCells;		//	group rows
+		public readonly int gxCross;		//	game type: 0=normal, 1=cross
+		public readonly string gTypeName;	//	game type name
+		public int gSumask;
+		public int gtabSize { get { return gxCells*gyCells; } }
 		public GameDef(int x,int y,int t,string n){
-			xCells=x;
-			yCells=y;
-			xCross=t;
-			gName=n;
-			sumask=(1<<x*y)-1;
+			gxCells=x;
+			gyCells=y;
+			gxCross=t;
+			gTypeName=n;
+			gSumask=(1<<x*y)-1;
 		}
 	}
 	class Constants {

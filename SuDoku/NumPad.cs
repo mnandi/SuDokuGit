@@ -14,24 +14,31 @@ namespace SuDoku {
 		GameCell cell;
 		public int numMask=0;
 		public int numButton=-1;
-		public NumPad(GameCell cll,GameDef def,bool mode) {
-			//	all	=true  - left button	- view all num
-			//		=false - right button	- view available nums
+		public NumPad(GameCell cll,GameDef def,bool state,bool mode) {
+			//	mode:
+			//		all	=true  - left button	- view all num
+			//			=false - right button	- view available nums
 			InitializeComponent();
 
 			cell=cll;
-			siz=def.xCells*def.yCells;
+			siz=def.gtabSize;
 			bas=(siz>9)?Constants.chrBase:Constants.numBase;	//	show '1' if table <= 3x3 else 'A'
 
 			CellResult rerr=SuDokuForm.gameTable.CountCellFlag(cell);
-			int nC=Math.Max(def.xCells,def.yCells);
-			int nR=Math.Min(def.xCells,def.yCells);
+			int nC=Math.Max(def.gxCells,def.gyCells);
+			int nR=Math.Min(def.gxCells,def.gyCells);
 
 			const int offs=2;
 			int buttSiz=30;
 			this.Size=new Size(buttSiz*nC+offs,buttSiz*(nR+1)+offs);
 			Button[,] butts=new Button[nC,nR];
 			Button butt;
+			int mask=rerr.cellnums;
+			if(!state) {
+				if(cell.canresmask!=0) {
+					mask&=~cell.canresmask;
+				}
+			}
 			for(int yy=0;yy<nR;yy++){
 				for(int xx=0;xx<nC;xx++){
 					butt=new Button();
@@ -40,8 +47,9 @@ namespace SuDoku {
 					int num=yy*nC+xx;
 					butt.Text=((char)(num+((SuDokuForm.gameTable.tabSize>=10)?0x41:0x31))).ToString();
 					butt.Tag=num+1;
-					if(!mode) {
-						if((rerr.cellnums&(1<<(num)))!=0)
+					if((!mode)||(!state)) {
+						//if((rerr.cellnums&(1<<(num)))!=0)
+						if((mask&(1<<(num)))!=0)
 							butt.Enabled=false;
 					}
 					butt.Click+=new System.EventHandler(this.button_Click);

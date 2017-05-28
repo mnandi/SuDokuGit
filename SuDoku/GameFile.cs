@@ -14,23 +14,23 @@ namespace SuDoku {
 		end,
 	}
 	class GameParams{
-		public string idline;
-		public string name="";
-		public int diag=0;
-		public string tx="3";
-		public string ty="3";
+		public string pIdline;
+		public string pName="";
+		public int pDiag=0;
+		public string ptX="3";
+		public string ptY="3";
 		public string tlevel="0";
-		public string comment="";
+		public string pComment="";
 		public GameParams() {
 		}
 		public GameParams(string id,string nam) {
-			idline=id;
-			name=nam;
+			pIdline=id;
+			pName=nam;
 		}
-		public int size { get { return x*y;} }
-		public int x { get { return Int32.Parse(tx);} }
-		public int y { get { return Int32.Parse(ty);} }
-		public int level { get { return Int32.Parse(tlevel);} }
+		public int pSize { get { return pX*pY;} }
+		public int pX { get { return Int32.Parse(ptX);} }
+		public int pY { get { return Int32.Parse(ptY);} }
+		public int pLevel { get { return Int32.Parse(tlevel);} }
 	}
 	class GameFile {
 		static List<List<string>> listGames=null;
@@ -46,11 +46,11 @@ namespace SuDoku {
 		}
 
 		static public GameParams SetGameId(GameParams par) {
-			par.idline=SetGameIdLine(par);
+			par.pIdline=SetGameIdLine(par);
 			return par;
 		}
 		static public string SetGameIdLine(GameParams par) {
-			string line=string.Format("[{0}]\t={1}{2}x{3}\t ({4}x{4})\t#{5}\t; {6}",par.name,par.tx,par.ty,par.size,par.level,par.comment);
+			string line=string.Format("[{0}]\t={1}{2}x{3}\t ({4}x{4})\t#{5}\t; {6}",par.pName,par.ptX,par.ptY,par.pSize,par.pLevel,par.pComment);
 			return line;
 		}
 		#region Saving / Loading file
@@ -129,13 +129,13 @@ namespace SuDoku {
 			//	9 ? comment
 			// 10 comment
 			Match m=Regex.Match(gameid,pattern,RegexOptions.IgnoreCase);
-			gameParams.idline=gameid;
-			gameParams.name=m.Groups[1].Value;		//	Extract "[...]" from string
-			gameParams.diag=(string.IsNullOrWhiteSpace(m.Groups[4].Value)?(int)GameType.NODIAGGAME:(int)GameType.DIAGGAME);
-			gameParams.tx=(string.IsNullOrWhiteSpace(m.Groups[5].Value)?"3":m.Groups[5].Value);		//	Extract "=X*y" from string
-			gameParams.ty=(string.IsNullOrWhiteSpace(m.Groups[6].Value)?"3":m.Groups[6].Value);		//	Extract "=n*Y" from string
+			gameParams.pIdline=gameid;
+			gameParams.pName=m.Groups[1].Value;		//	Extract "[...]" from string
+			gameParams.pDiag=(string.IsNullOrWhiteSpace(m.Groups[4].Value)?(int)GameType.NODIAGGAME:(int)GameType.DIAGGAME);
+			gameParams.ptX=(string.IsNullOrWhiteSpace(m.Groups[5].Value)?"3":m.Groups[5].Value);		//	Extract "=X*y" from string
+			gameParams.ptY=(string.IsNullOrWhiteSpace(m.Groups[6].Value)?"3":m.Groups[6].Value);		//	Extract "=n*Y" from string
 			gameParams.tlevel=(string.IsNullOrWhiteSpace(m.Groups[8].Value)?"1":m.Groups[8].Value);	//	Extract "=N" from string
-			gameParams.comment=m.Groups[10].Value;	//	Extract "; XXXX" from string
+			gameParams.pComment=m.Groups[10].Value;	//	Extract "; XXXX" from string
 			return gameParams;
 		}
 		#endregion

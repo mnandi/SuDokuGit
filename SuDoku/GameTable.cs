@@ -10,18 +10,19 @@ using System.Runtime.Serialization.Formatters.Binary;
 namespace SuDoku {
 	[Serializable]
 	public class GameCell: ICloneable {
-		public int	cannum;		//	possible values (if not fixed)
-        public int	imposs;		//	unfillable cell
-        public int	selected;	//	selected cell
-        public int	tried;		//	cell with a tried number
-        public int	orig=0;		//	cell with original input number
+		public int	cannum;		//	possible values (if cell not fixed)
+        public int	imposs;		//	unfillable cell (this cell has conflict with other(s))
+        //public int	selected;	//	selected cell
+        public int	tried;		//	cell with a tried number (susolve choose to try this)
+        public int	orig=0;		//	cell with original input number (filled when not gaming)
 
 		int cX;			//	cell X coord
 		int cY;			//	cell Y coord
 
-		public int inpsel=0;		//	selected input cell
+		public int inpsel=0;		//	selected input cell (actual handled cell)
+		public int canresmask=0;	//	bit values of possible multiple results
 		public int fixNum=0;		//	cell value: -1=empty, 0-not used, 1-n
-		public int fixbitnum { get { return (fixNum<=0)?0:1<<(fixNum-1); } }
+		public int fixbitnum { get { return (fixNum<=0)?0:1<<(fixNum-1); } }  //	bit version of fixNum
 
 		public GameCell(int x,int y) {
 			cX=x;
@@ -58,15 +59,16 @@ namespace SuDoku {
 		public int tabSize { get { return tabsiz; } }
 		public int boardsize { get { return tabsiz*tabsiz; } }
 		public GameTable(int nx,int ny) {
-			InitTable(nx,ny);
+			InitTable(nx,ny,(int)GameType.NODIAGGAME);
 		}
-		public void InitTable(int nx,int ny){
+		public void InitTable(int nx,int ny,int df){
 			xCells=nx;
 			yCells=ny;
 			tabsiz=nx*ny;
 			nummask=(1<<tabsiz)-1;
 			selectedX=
 			selectedY=-1;
+			diagFlag=df;
 			cellList=new List<GameCell>();
 			for(int yy=0;yy<tabsiz;yy++){
 				for(int xx=0; xx<tabsiz; xx++) {
@@ -116,7 +118,7 @@ namespace SuDoku {
 				int ii=yy*tabSize+xx;
 				cellList[ii].fixNum=num;
 				cellList[ii].orig=(num==0)?0:1;
-				cellList[ii].selected=
+				//cellList[ii].selected=
 				cellList[ii].imposs=
 				cellList[ii].tried=0;
 			}
@@ -149,7 +151,7 @@ namespace SuDoku {
 				cell.orig=0;
 				cell.cannum=0;
 				cell.imposs=0;
-				cell.selected=0;
+				//cell.selected=0;
 				cell.fixNum=0;
 			}
 		}
@@ -158,9 +160,9 @@ namespace SuDoku {
 		//======================================================================
 		public void ClearSelects() {
 			for(int xx=boardsize;(xx--)>0;){
-				if(this.cell(xx).selected==1){
-					this.cell(xx).selected=0;
-				}
+				//if(this.cell(xx).selected==1){
+				//	this.cell(xx).selected=0;
+				//}
 				if(this.cell(xx).imposs==1) {
 					this.cell(xx).imposs=0;
 				}
@@ -205,7 +207,6 @@ namespace SuDoku {
 			//		returns: the bitflag of a cell impossible values
 			//					by the collection of bit of numbers cell x,y
 			//					on row, column, block and optionally diagonals
-
 			int x,y;
 			x=indx%tabSize;
 			y=indx/tabSize;
