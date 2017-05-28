@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 
 using System.Drawing;	//	Point
+using System.IO;		//	MemoryStream
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace SuDoku {
-	public class GameItem {
+	[Serializable]
+	public class GameItem: ICloneable {
 		public int cx=0;			//	cell X coord
 		public int cy=0;			//	cell Y coord
 		public int occNum=0;		//	nbr of occupied values
@@ -18,19 +21,27 @@ namespace SuDoku {
 			cx=x;
 			cy=y;
 		}
+		public object Clone() {
+			return this.MemberwiseClone();
+		}
 	}
+	[Serializable]
 	public class GameTable {
-		int xn;
-		int yn;
-		int tabSize;
-		List<GameItem> listItems ;
+		//	variables for backstep
+		public int lastX=-1;
+		public int lastY=-1;
+		public int tryNb=-1;
+
+		public int xCells;
+		public int yCells;
+		List<GameItem> listItems;
+		public int tabSize { get { return xCells*yCells; } }
 		public GameTable(int x,int y) {
 			InitTable(x,y);
 		}
 		public void InitTable(int x,int y){
-			xn=x;
-			yn=y;
-			tabSize=x*y;
+			xCells=x;
+			yCells=y;
 			listItems=new List<GameItem>();
 			for(int yy=0;yy<tabSize;yy++){
 				for(int xx=0; xx<tabSize; xx++) {
@@ -38,7 +49,6 @@ namespace SuDoku {
 				}
 			}
 		}
-		public int tableSize {get{return tableSize;}}
 		public GameItem item(int x){
 			return listItems[x];
 		}
@@ -93,6 +103,20 @@ namespace SuDoku {
 					errs++;
 			}
 			return errs;
+		}
+		//public object Clone() {
+		//    return this.MemberwiseClone();
+		//}
+		public T DeepClone<T>(T obj) {
+			T objResult;
+			using(MemoryStream ms=new MemoryStream()) {
+				BinaryFormatter bf=new BinaryFormatter();
+				bf.Serialize(ms,obj);
+
+				ms.Position=0;
+				objResult=(T)bf.Deserialize(ms);
+			}
+			return objResult;
 		}
 	}
 }

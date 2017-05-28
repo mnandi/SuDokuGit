@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Timers;
 #endregion
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace SuDoku {
 	delegate void ShowTimerDelegate();
@@ -26,8 +27,8 @@ namespace SuDoku {
 		static readonly Color back3Color=Color.PaleGoldenrod;	//	Error
 		static public GameDef actGameDef=null;				//	Actual game definition
 		static public int tableSize;						//	tablesize of actual game
-		static public GameTable gameTable;				//	Actual game table
-		static public List<GameQueueItem> gameQueue;			//	Previous game tables
+		static public GameTable gameTable;					//	Actual game table
+		static public List<GameTable> gameQueue=null;		//	Previous game tables
 		static SolidBrush br=new SolidBrush(borderColor);	//	Draw rectangle border
 		static SolidBrush bn=new SolidBrush(textColor);		//	Item text color
 		static SolidBrush bf=new SolidBrush(back0Color);	//	Clear picture
@@ -291,8 +292,15 @@ namespace SuDoku {
 			int errnum=gameTable.CheckTable();
 		}
 		private void buttonFillGame_Click(object sender,EventArgs e) {
+			GameTable newTable=(GameTable)gameTable.DeepClone(gameTable);
+			GameQueueAdd();
 			MessageBox.Show("Ez még nincs kész!!","Kitöltés",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
 		}
 		#endregion
+		static void GameQueueAdd() {
+			if(gameQueue==null)
+				gameQueue=new List<GameTable>();
+			gameQueue.Add((GameTable)gameTable.DeepClone(gameTable));
+		}
 	}
 }

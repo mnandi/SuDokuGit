@@ -10,6 +10,7 @@ namespace SuDoku {
 		public int lastY=-1;
 		public int tryNb=-1;
 		public GameTable gameTable;
+
 		public GameQueueItem() {
 		}
 	}
