@@ -14,15 +14,27 @@ namespace SuDoku {
 		FREE
 	}
 	[Serializable]
-	public class GameItem: ICloneable {
+	public class GameCell: ICloneable {
+		public int	cannum;		//   possible values (if not fixed)
+		//public int	result;		//   one legal result value
+        //public int	diag;		//1;   //   diagonal cell
+        public int	imposs;		//1;   //   unfillable cell
+        public int	selected;	//1;   //   selected cell
+        public int	tried;		//1;   //   cell with a tried number
+        public int	orig=0;		//1;   //   cell with original input number
+        public int	fixd=0;		//1;   //   fixed cell
+
 		public int cellX=0;			//	cell X coord
 		public int cellY=0;			//	cell Y coord
-		public int occNum=0;		//	nbr of occupied values (nbr of bits in vFlag)
-		public int actNum=0;		//	cell value: -1=empty, 0-not used, 1-n
-		public int actFlag=0;		//	own numeric bit mask (1 bit - according actNum)
+		//public int occNum=0;		//	nbr of occupied values (nbr of bits in vFlag)
+		public int fixNum=0;		//	cell value: -1=empty, 0-not used, 1-n
+		//public int tryNum=0;		//	cell value: -1=empty, 0-not used, 1-n
+		//public int actFlag=0;		//	own numeric bit mask (1 bit - according fixNum)
 		public int vFlag=0;			//	bit mask of 0=available / 1=occupied numbers
-		public int cellType=(int)CellType.FREE;	//	if fixed yet in this step
-		public GameItem(int x,int y) {
+		//public int cellType=(int)CellType.FREE;	//	if fixed yet in this step
+		//int actNum=0;
+		public int fixnum { get { return (fixNum<=0)?0:1<<(fixNum-1); } }
+		public GameCell(int x,int y) {
 			cellX=x;
 			cellY=y;
 		}
@@ -36,6 +48,10 @@ namespace SuDoku {
 	}
 	[Serializable]
 	public class GameTable {
+		public int level;
+		public int x;
+		public int y;
+		public int tnb;
 		//	variables for backstep
 		public int lastX=-1;
 		public int lastY=-1;
@@ -43,18 +59,19 @@ namespace SuDoku {
 
 		public int xCells;
 		public int yCells;
-		List<GameItem> listItems;
+		List<GameCell> listItems;
 		public int tabSize { get { return xCells*yCells; } }
+		public int boardsize { get { return xCells*yCells*xCells*yCells; } }
 		public GameTable(int x,int y) {
 			InitTable(x,y);
 		}
 		public void InitTable(int x,int y){
 			xCells=x;
 			yCells=y;
-			listItems=new List<GameItem>();
+			listItems=new List<GameCell>();
 			for(int yy=0;yy<tabSize;yy++){
 				for(int xx=0; xx<tabSize; xx++) {
-					listItems.Add(new GameItem(xx,yy));
+					listItems.Add(new GameCell(xx,yy));
 				}
 			}
 		}
@@ -64,24 +81,25 @@ namespace SuDoku {
 		public Point IndexToPoint(int index) {
 			return new Point(index%tabSize,index/tabSize);
 		}
-		public GameItem item(int x){
+		public GameCell cell(int x){
 			return listItems[x];
 		}
-		public GameItem item(int x,int y) {
+		public GameCell cell(int x,int y) {
 			return listItems[y*tabSize+x];
 		}
-		public GameItem item(Point pt) {
+		public GameCell cell(Point pt) {
 			return listItems[pt.Y*tabSize+pt.X];
 		}
 		public void FillTableRow(int yy,string rowData) {
-			int bas=(tabSize>9)?0x40:0x30;
+			int bas=(tabSize>9)?Constants.chrBase:Constants.numBase;	//	show '1' if table <= 3x3 else 'A'
 			for(int xx=0; xx<tabSize; xx++) {
 				int num=(int)rowData[xx]-bas;
 				if(num<=0)
 					continue;
 				int ii=yy*tabSize+xx;
-				listItems[ii].actNum=num;
-				listItems[ii].actFlag=1<<num;
+				listItems[ii].fixNum=num;
+				//listItems[ii].fixNum=num;
+				//-listItems[ii].actFlag=1<<num;
 			}
 		}
 		public void FillTable(List<string> lineData) {
@@ -91,43 +109,53 @@ namespace SuDoku {
 		}
 		public void ClearTable() {
 			for(int ii=0; ii<listItems.Count; ii++) {
-				GameItem item=listItems[ii];
-				item.actFlag=
-				item.occNum=
-				item.vFlag=
-				item.occNum=0;
-				item.cellType=(int)CellType.FREE;
-				item.actNum=-1;
+				GameCell cell=listItems[ii];
+				//cell.fixNum=
+				//cell.occNum=0;
+				cell.vFlag=0;
+				//cell.cellType=(int)CellType.FREE;
+				cell.cannum=0;
+				cell.imposs=0;
+				cell.selected=0;
+				cell.fixNum=0;
 			}
 		}
-		public Point? GetNearestToComplete() {
-			int xx=-1;
-			int yy=-1;
-			int max=0;
-			for(int ii=0; ii<listItems.Count; ii++) {
-				int act=listItems[ii].occNum;
-				if((act<=max)||(act>=tabSize))
-					continue;
-				max=act;
-				xx=listItems[ii].cellX;
-				yy=listItems[ii].cellY;
+		//======================================================================
+		//	Clearing all select and impossible bits on board
+		//======================================================================
+		public void ClearSelects(ref int selnb) {
+			if(selnb==0)
+				return;
+			for(int xx=boardsize;(xx--)>0;){
+				//if(psutab->sudoku[xx].selected==1){
+				//	psutab->sudoku[xx].selected=0;
+				//	//RedrawCell(xx%susize,xx/susize);
+				//}
+				//if(psutab->sudoku[xx].imposs==1){
+				//	psutab->sudoku[xx].imposs=0;
+				//	//RedrawCell(xx%susize,xx/susize);
+				//}
+				if(this.cell(xx).selected==1){
+					this.cell(xx).selected=0;
+					//RedrawCell(xx%susize,xx/susize);
+				}
+				if(this.cell(xx).imposs==1) {
+					this.cell(xx).imposs=0;
+					//RedrawCell(xx%susize,xx/susize);
+				}
+
 			}
-			if((xx<0)||(yy<0))
-				return null;
-			return new Point(xx,yy);
+			selnb=0;
 		}
 		public int CheckTable() {
 			int errs=0;
 			for(int ii=0; ii<listItems.Count; ii++) {
-				List<int[]> err=SuCheck.CheckValues(listItems[ii]);
+				List<int[]> err=GameCheck.CheckValues(listItems[ii]);
 				if(err.Count>0)
 					errs++;
 			}
 			return errs;
 		}
-		//public object Clone() {
-		//    return this.MemberwiseClone();
-		//}
 		public T DeepClone<T>(T obj) where T : class {
 			T objResult;
 			using(MemoryStream ms=new MemoryStream()) {

@@ -48,6 +48,11 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="GameFile.cs" />
+    <Compile Include="Routines.cs" />
+    <Compile Include="SuSolve.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TableQueue.cs" />
     <Compile Include="GameTable.cs" />
     <Compile Include="NumPad.cs">
       <SubType>Form</SubType>
@@ -63,8 +68,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SuCheck.cs" />
-    <Compile Include="SuSolve.cs" />
+    <Compile Include="GameCheck.cs" />
+    <Compile Include="GameSolve.cs" />
     <EmbeddedResource Include="NumPad.resx">
       <DependentUpon>NumPad.cs</DependentUpon>
       <SubType>Designer</SubType>

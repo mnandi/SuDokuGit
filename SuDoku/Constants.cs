@@ -8,21 +8,31 @@ namespace SuDoku {
 		NODIAGGAME,
 		DIAGGAME
 	}
-	public class GameDef{
+	public enum Const {
+		SUSIZEMX=25,   //   Maximal dimension of SuDoku board
+	}
+	public class GameDef {
 		public readonly int xCells;		//	group columns
 		public readonly int yCells;		//	group rows
 		public readonly int xCross;		//	game type: 0=normal, 1=cross
 		public readonly string gName;	//	game type name
+		public int sumask;
 		public GameDef(int x,int y,int t,string n){
 			xCells=x;
 			yCells=y;
 			xCross=t;
 			gName=n;
+			sumask=(1<<x*y)-1;
 		}
 	}
 	class Constants {
 		public const int cellOffs=3;		//	pixels between neighbouring cells
 		public const int groupOffs=3;		//	Extra plus pixels between neighbouring cell groups
+
+		public const int numBase=((byte)'1')-1;		//	cell ident base at tables <= 3x3
+		public const int chrBase=((byte)'A')-1;		//	cell ident base at tables >  3x3
+
+
 
 		public static GameDef[] gameDefTb=new GameDef[]{
 		new GameDef(3,3,(int)GameType.NODIAGGAME,	"=9x9    (3*3)"),

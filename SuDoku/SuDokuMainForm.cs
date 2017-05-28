@@ -20,17 +20,19 @@ namespace SuDoku {
 	public partial class SuDokuForm: Form {
 		#region Common data
 		static readonly Color borderColor=Color.Black;			//	Cell border
-		static readonly Color textColor=Color.Blue;				//	Cell number
+		static readonly Color text0Color=Color.Blue;			//	Cell number
+		static readonly Color text1Color=Color.Green;			//	Selected
+		static readonly Color text2Color=Color.Red;				//	Error - imposs
 		static readonly Color back0Color=Color.White;			//	Default
 		static readonly Color back1Color=Color.PaleGoldenrod;	//	XCross
-		static readonly Color back2Color=Color.PaleGoldenrod;	//	Actual
-		static readonly Color back3Color=Color.PaleGoldenrod;	//	Error
 		static public GameDef actGameDef=null;				//	Actual game definition
 		//static public int tableSize;						//	tablesize of actual game
 		static public GameTable gameTable;					//	Actual game table
-		static public List<GameTable> gameQueue=null;		//	Previous game tables
+		static public TableQueue tableQueue=null;			//	Previous game tables
 		static SolidBrush br=new SolidBrush(borderColor);	//	Draw rectangle border
-		static SolidBrush bn=new SolidBrush(textColor);		//	Item text color
+		static SolidBrush bn=new SolidBrush(text0Color);	//	Fix      Item text color
+		static SolidBrush bs=new SolidBrush(text1Color);	//	Selected Item text color
+		static SolidBrush be=new SolidBrush(text2Color);	//	Defected Item text color
 		static SolidBrush bf=new SolidBrush(back0Color);	//	Clear picture
 		static SolidBrush bd=new SolidBrush(back1Color);	//	Clear picture diadonal
 		//	Game states
@@ -42,6 +44,7 @@ namespace SuDoku {
 		static int baseX=0;			//	game table left position
 		static int baseY=0;			//	game table top  position
 		static int cellSize;		//	Cell size in pixels
+		static int selnb=0;
 		#endregion
 		#region Game initialization & gaming
 		public SuDokuForm() {
@@ -51,6 +54,8 @@ namespace SuDoku {
 			for(int ii=0; ii<Constants.gameDefTb.Length; ii++) {
 				comboGameType.Items.Add(Constants.gameDefTb[ii].gName);
 			}
+			pictureTable.BackColor=Color.DimGray;
+			tableQueue=new TableQueue();
 			comboGameType.SelectedIndex=0;
 			gameTimer=new System.Timers.Timer(1000);
 			gameTimer.Elapsed+=OnTimedEvent;
@@ -62,12 +67,13 @@ namespace SuDoku {
 		}
 
 		private void buttonStartGame_Click(object sender,EventArgs e) {
-			if(!gameState) {
+			if(!gameState) {		//	false=not gaming / true=gaming
 				buttonStartGame.Text="Játék leállítása";
 				comboGameType.Enabled=
 				numericLevel.Enabled=
 				comboGameName.Enabled=
 				textGameComment.Enabled=false;
+				gameTable.ClearSelects(ref selnb);
 			} else {
 				buttonStartGame.Text="--> Játék indítása";
 				comboGameType.Enabled=
@@ -103,71 +109,34 @@ namespace SuDoku {
 		#endregion
 		#region Game testing buttons
 		private void buttonCheckResolving_Click(object sender,EventArgs e) {
-			gameTable.CheckTable();
-			while(true) {
-				Point? cellP=gameTable.GetNearestToComplete();
-				if(cellP==null) {
-					MessageBox.Show("A tábla megoldható","Megoldhatóság",MessageBoxButtons.OK,MessageBoxIcon.Information);
-					break;
-				}
-				GameItem item=gameTable.item((Point)cellP);
-				int num;
-				if((item==null)||((num=GetTryValue(item))<1)) {
-					MessageBox.Show("CSAK TESZT!!!\r\nA tábla nem oldható meg!","Megoldhatóság",MessageBoxButtons.OK,MessageBoxIcon.Error);
-					break;
-				}
-				item.actNum=num;
-				item.actFlag=1<<num;
-				item.vFlag|=item.actFlag;
-				gameTable.lastX=((Point)cellP).X;
-				gameTable.lastY=((Point)cellP).Y;
-				GameQueueAdd();
-				List<int[]> err=SuCheck.StepValue(item);
-				if(err.Count==0) {
-					continue;
-				} else {
-					//	Step back
-					int last=gameQueue.Count-1;
-					if(last<0) {
-						//	no result
-						break;
+			GameTable gameTableSave=gameTable.DeepClone(gameTable);
+			sresult sret=SuSolve(solvetype.MAKERESULT/*TESTRESULTS*/);
+			switch(sret) {
+				case sresult.SOLVE_OK:
+					var ret=MessageBox.Show("A tábla megoldható\r\nMutassam a végeredményt?","Megoldhatóság",MessageBoxButtons.YesNo,MessageBoxIcon.Information);
+					if(ret==DialogResult.Yes) {
+						pictureTable_Resize(null,null);
+						MessageBox.Show("Tovább","Kilépés",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
 					}
-					gameTable=gameQueue[last];
-					gameQueue.RemoveAt(last);
-				}
-			}
-			if(gameQueue!=null) {
-				gameTable=gameQueue[0];
-				gameQueue=null;
-				MessageBox.Show("A tábla nem oldható meg!","Megoldhatóság",MessageBoxButtons.OK,MessageBoxIcon.Error);
-			}
-		}
-		static int GetTryValue(GameItem i) {
-			int num=1;
-			int flag=i.vFlag;
-			while(true) {
-				flag>>=1;
-				if((flag&1)==0)
 					break;
-				num++;
-#if DEBUG
-				if(num>gameTable.tabSize) {
-					MessageBox.Show("Hibás vFlag","Error",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+				default:
+					MessageBox.Show("A tábla nem oldható meg!","Megoldhatóság",MessageBoxButtons.OK,MessageBoxIcon.Error);
 					break;
-				}
-#endif
 			}
-			return num;
+			gameTable=gameTableSave;
+			gameTableSave=null;
+			pictureTable_Resize(null,null);
 		}
 		private void buttonTestGame_Click(object sender,EventArgs e) {
 			int conflictNb=0;
 			int conflictAll=0;
+			gameTable.ClearSelects(ref selnb);
 			for(int yy=0; yy<gameTable.tabSize; yy++) {
 				for(int xx=0; xx<gameTable.tabSize; xx++) {
-					GameItem item=gameTable.item(xx,yy);
-					if(item.actNum<1)
+					GameCell item=gameTable.cell(xx,yy);
+					if(item.fixNum<1)
 						continue;
-					List<int[]> errors=SuCheck.CheckValues(item);
+					List<int[]> errors=GameCheck.CheckValues(item);
 					int errCount=errors.Count;
 					if(errCount==0)
 						continue;
@@ -186,7 +155,7 @@ namespace SuDoku {
 			InitSuDokuTable(actGameDef);
 
 		}
-		void InitSuDokuTable(GameDef game){
+		void InitSuDokuTable(GameDef game) {
 			gameTable=new GameTable(game.xCells,game.yCells);
 			pictureTable_Resize(null,null);
 		}
@@ -207,7 +176,7 @@ namespace SuDoku {
 			using(Graphics g=Graphics.FromImage(pictureTable.Image)) {
 				for(int yy=0; yy<actGameDef.xCells*actGameDef.yCells; yy++) {
 					for(int xx=0; xx<actGameDef.xCells*actGameDef.yCells; xx++) {
-						DrawCell(g,br,cellSize,gameTable.item(xx,yy));
+						DrawCell(g,br,cellSize,gameTable.cell(xx,yy));
 					}
 				}
 			}
@@ -218,21 +187,30 @@ namespace SuDoku {
 		int SetTop(int yp,int siz) {
 			return baseY+yp*(siz+Constants.cellOffs)+(yp/actGameDef.yCells)*Constants.groupOffs;
 		}
-		void DrawCell(Graphics g,Brush brx,int size,GameItem item) {
+		void DrawCell(Graphics g,Brush brx,int size,GameCell item) {
 			Rectangle rect=new Rectangle(SetLeft(item.cellX,size),SetTop(item.cellY,size),size,size);
 			Brush bb=((actGameDef.xCross==(int)GameType.DIAGGAME)&&
 					  ((item.cellX==item.cellY)||
 					   (item.cellX==(actGameDef.xCells*actGameDef.yCells)-1-item.cellY)))?bd:bf;
 			g.FillRectangle(bb,rect);
 			g.DrawRectangle(new Pen(br),rect);
-			if(item.actNum>0) {
-				string chstr=((char)(((gameTable.tabSize>9)?0x40:0x30)+item.actNum)).ToString();
-				g.DrawString(chstr,numFont,bn,new Point(rect.X,rect.Y));
+			if(item.fixnum!=0) {
+				string chstr=((char)(((gameTable.tabSize>9)?Constants.chrBase:Constants.numBase)+item.fixNum)).ToString();
+				if(item.selected==1)
+					g.DrawString(chstr,numFont,bs,new Point(rect.X,rect.Y));
+				else if(item.imposs==1)
+					g.DrawString(chstr,numFont,be,new Point(rect.X,rect.Y));
+				else
+					g.DrawString(chstr,numFont,bn,new Point(rect.X,rect.Y));
 			}
 		}
 
 		private void pictureTable_Resize(object sender,EventArgs e) {
+			if(this.WindowState!=FormWindowState.Normal)
+				return;
+			//if(sender!=null) {
 			pictureTable.Image=new Bitmap(pictureTable.Width,pictureTable.Height);	//	bitmap of table
+			//}
 			RedrawTable();
 		}
 
@@ -242,40 +220,41 @@ namespace SuDoku {
 		#endregion
 		#region Numpad handling
 		private void pictureTable_MouseClick(object sender,MouseEventArgs e) {
-			GameItem item=null;
+			GameCell item=null;
 			int xx=gameTable.tabSize;
-			while(SetLeft(xx,cellSize)>e.X)	xx--;
+			while(SetLeft(xx,cellSize)>e.X)
+				xx--;
 			if((xx<0)||(xx>=gameTable.tabSize))
 				return;
 			int yy=gameTable.tabSize;
-			while(SetTop(yy,cellSize)>e.Y)	yy--;
+			while(SetTop(yy,cellSize)>e.Y)
+				yy--;
 			if((yy<0)||(yy>=gameTable.tabSize))
 				return;
-			item=gameTable.item(xx,yy);
-			int num;
+			item=gameTable.cell(xx,yy);
 			int x=SetLeft(xx,cellSize)+cellSize*7/10;
 			int y=SetTop(yy,cellSize)+cellSize*7/10;
 			Point ptCell=((Control)sender).PointToScreen(new Point(x,y));
+			int num;
 			if(e.Button==MouseButtons.Left) {
 				num=ShowNumpad(ptCell,item,true);
 			} else {
 				num=ShowNumpad(ptCell,item,false);
 			}
-			if((num>=0)&&(item.actNum!=num)) {
-				item.actNum=num;
+			if(num>=0) {
+				item.fixNum=num;
 				using(Graphics g=Graphics.FromImage(pictureTable.Image)) {
-					DrawCell(g,br,cellSize,gameTable.item(xx,yy));
+					DrawCell(g,br,cellSize,gameTable.cell(xx,yy));
 				}
 				pictureTable.Refresh();
 			}
 		}
-		int ShowNumpad(Point loc,GameItem item,bool all) {
+		int ShowNumpad(Point loc,GameCell item,bool all) {
 			//	all	=true  - left button
 			//		=false - right button
 			NumPad pad=new NumPad(item,actGameDef,all);
 			pad.Location=loc;
 			pad.ShowDialog();
-			item.actFlag=pad.numMask;
 			return pad.numButton;	//	-1-Abort, 0-Delete, n-num
 		}
 		#endregion
@@ -283,14 +262,14 @@ namespace SuDoku {
 		//======================================
 		//	Save file handling
 		//======================================
-		private void buttonAddGame(){
+		private void buttonAddGame() {
 			string oLine=string.Format("[{0}]\t={1}{2}x{3}\t	#{4};\t{5}",comboGameName.Text,comboGameType.Text,textGameComment.Text);
 			GameFile.AddGame(0,oLine);
-			int ch0=(gameTable.tabSize>9)?0x40:0x30;
+			int ch0=(gameTable.tabSize>9)?Constants.chrBase:Constants.numBase;	//	show '1' if table <= 3x3 else 'A'
 			for(int ii=0; ii<gameTable.tabSize; ii++) {
 				oLine="";
 				for(int jj=0; jj<gameTable.tabSize; jj++) {
-					int num=gameTable.item(jj,ii).actNum;
+					int num=gameTable.cell(jj,ii).fixNum;
 					oLine+=((char)((num>0)?(num+ch0):0x20)).ToString();
 				}
 				GameFile.AddGame(1,oLine);
@@ -349,16 +328,46 @@ namespace SuDoku {
 			int errnum=gameTable.CheckTable();
 		}
 		private void buttonFillGame_Click(object sender,EventArgs e) {
-			//GameTable newTable=(GameTable)gameTable.DeepClone(gameTable);
-			GameTable newTable=gameTable.DeepClone<GameTable>(gameTable);
-			GameQueueAdd();
 			MessageBox.Show("Ez még nincs kész!!","Kitöltés",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
 		}
 		#endregion
-		static void GameQueueAdd() {
-			if(gameQueue==null)
-				gameQueue=new List<GameTable>();
-			gameQueue.Add(gameTable.DeepClone<GameTable>(gameTable));
+
+		private void buttonResolveTable_Click(object sender,EventArgs e) {
+			// TODO: Add your control notification handler code here
+			//if(timerId==TIMERID){
+			//    KillTimer(timerId);
+			//    timerId=0;
+			//}
+			gameTable.ClearSelects(ref selnb);
+			GameTable gameTableSave=gameTable.DeepClone(gameTable);
+
+			//CString secs(" 0:00:00");
+			//CStatic* pTM=(CStatic*)GetDlgItem(IDC_TIMER);
+			//pTM->SetWindowText(secs);
+
+			int ret;
+			if((ret=CheckAll())!=0)
+				return;
+
+			//RedrawTable();
+			sresult tret;
+			string msg;
+			if((tret=SuSolve(solvetype.MAKERESULT))!=sresult.SOLVE_OK){
+				//	Returns:
+				//		-1	- no solution
+				//		 0	- solved
+				//		>0	- other solve error
+				pictureTable_Resize(null,null);
+				MessageBox.Show("A tábla nem megoldható","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Error);
+			}else{
+				pictureTable_Resize(null,null);
+				msg=string.Format("%s",tret);
+				MessageBox.Show("A tábla megoldása\r\nBefejezem","Eredmény",MessageBoxButtons.OK,MessageBoxIcon.Information);
+				//AfxMessageBox(msg,MB_OK);
+			}
+			gameTable=gameTableSave;
+			gameTableSave=null;
+			pictureTable_Resize(null,null);
 		}
 	}
 }

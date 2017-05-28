@@ -9,16 +9,16 @@ using System.Windows.Forms;
 
 namespace SuDoku {
 	public partial class NumPad: Form {
-		GameItem item;
+		GameCell cell;
 		public int numMask=0;
 		public int numButton=-1;
-		public NumPad(GameItem itm,GameDef def,bool mode) {
+		public NumPad(GameCell cll,GameDef def,bool mode) {
 			//	all	=true  - left button	- view all num
 			//		=false - right button	- view available nums
 			InitializeComponent();
 
-			item=itm;
-			List<int[]> errList=SuCheck.CheckValues(item);
+			cell=cll;
+			List<int[]> errList=GameCheck.CheckValues(cell);
 			int nC=Math.Max(def.xCells,def.yCells);
 			int nR=Math.Min(def.xCells,def.yCells);
 
@@ -36,7 +36,7 @@ namespace SuDoku {
 					butt.Text=((char)(num+((SuDokuForm.gameTable.tabSize>=10)?0x41:0x31))).ToString();
 					butt.Tag=num+1;
 					if(!mode) {
-						if((item.vFlag&(1<<(num+1)))!=0)
+						if((cell.vFlag&(1<<(num+1)))!=0)
 							butt.Enabled=false;
 					}
 					butt.Click+=new System.EventHandler(this.button_Click);
@@ -65,14 +65,18 @@ namespace SuDoku {
 		}
 		private void button_Click(object sender,EventArgs e) {
 			numButton=(int)(((Button)sender).Tag);
-			if(numButton>=0) {
-				if(numButton==0) {
+			switch(numButton) {
+				case -1:
+					numMask=-1;
+					break;
+				case 0:
 					numMask=0;
-				} else {
-					numMask=(1<<numButton);
-				}
-				List<int[]> errList=SuCheck.CheckValues(item);
+					break;
+				default:
+					numMask=(1<<(numButton-1));
+					break;
 			}
+			List<int[]> errList=GameCheck.CheckValues(cell);
 		}
 	}
 }

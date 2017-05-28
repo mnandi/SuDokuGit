@@ -105,22 +105,22 @@ namespace SuDoku {
 				return null;
 			GameParams gameParams=new GameParams();
 			string gameid=GetGameRow(indx,0);
-			const string pattern=@"^\[([^[]*)\]\s*=((X)?([0-9]*)?[xX*]([0-9]*))?\s*([#]([0-9]*))?\s*;(.*)?\s*$";
+			const string pattern=@"^\[([^[]*)\]\s*(=((X)?([0-9]*)?[xX*]([0-9]*)))?\s*([#]([0-9]*))?\s*;(.*)?\s*$";
 			//	1 name
-			//	2 diagonal
-			//	3 x
-			//	4 y
-			//	5 level
-			//	6 comment
+			//	4 diagonal
+			//	5 x
+			//	6 y
+			//	8 level
+			//	9 comment
 			Match m=Regex.Match(gameid,pattern,RegexOptions.IgnoreCase);
 			//if(!m.Success)
 			//	return null;
 			gameParams.name=m.Groups[1].Value;		//	Extract "[...]" from string
-			gameParams.diag=(string.IsNullOrWhiteSpace(m.Groups[3].Value)?(int)GameType.NODIAGGAME:(int)GameType.DIAGGAME);
-			gameParams.tx=m.Groups[4].Value;		//	Extract "=X*y" from string
-			gameParams.ty=m.Groups[5].Value;		//	Extract "=n*Y" from string
-			gameParams.tlevel=m.Groups[7].Value;	//	Extract "=N" from string
-			gameParams.comment=m.Groups[8].Value;	//	Extract "; XXXX" from string
+			gameParams.diag=(string.IsNullOrWhiteSpace(m.Groups[4].Value)?(int)GameType.NODIAGGAME:(int)GameType.DIAGGAME);
+			gameParams.tx=(string.IsNullOrWhiteSpace(m.Groups[5].Value)?"3":m.Groups[5].Value);		//	Extract "=X*y" from string
+			gameParams.ty=(string.IsNullOrWhiteSpace(m.Groups[6].Value)?"3":m.Groups[6].Value);		//	Extract "=n*Y" from string
+			gameParams.tlevel=(string.IsNullOrWhiteSpace(m.Groups[8].Value)?"1":m.Groups[8].Value);	//	Extract "=N" from string
+			gameParams.comment=m.Groups[9].Value;	//	Extract "; XXXX" from string
 			return gameParams;
 		}
 		#endregion
